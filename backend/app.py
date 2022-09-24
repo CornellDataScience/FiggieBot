@@ -57,14 +57,3 @@ async def websocket_endpoint(websocket: WebSocket):
             print('error:', e)
             break
     print('Disconnecting client...')
-
-# how to use:
-# cd backend
-# python3 -m venv websocket
-# source websocket/Scripts/activate
-# pip install fastapi "uvicorn[standard]"
-# uvicorn app:app --reload
-
-# will be available at: ws://127.0.0.1:8000/ws
-
-# for repo, we should make .gitignore (SO WE DON'T COMMIT VENV OR _PYCACHE FILES), requirements.txt
