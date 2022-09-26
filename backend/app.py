@@ -1,13 +1,30 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, BackgroundTasks
+import json
+import asyncio
+
+class Timer:
+    def __init__(self, timeout, callback, websocket):
+        self._timeout = timeout
+        self._callback = callback
+        self._websocket = websocket
+        self._task = asyncio.ensure_future(self._job())
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
+        await self._callback(self._websocket)
+
+    def cancel(self):
+        self._task.cancel()
 
 class Player:
-  def __init__(self, num_hearts, num_diamonds, num_clubs, num_spades, balance, orders):
+  def __init__(self, player_id, num_hearts, num_diamonds, num_clubs, num_spades, balance, orders):
+    self.player_id = player_id
+    self.orders = orders
+    self.balance = balance
     self.num_hearts = num_hearts
     self.num_diamonds = num_diamonds
     self.num_clubs = num_clubs
     self.num_spades = num_spades
-    self.balance = balance
-    self.orders = orders
 
 
 class Order:
@@ -32,27 +49,43 @@ class OrderBook:
 
 players = []
 round_number = 0
-timer = 0
 order_book = OrderBook([], [], [], [], [], [], [], [])
 next_order_id = 0
 
 app = FastAPI(title="FiggieBot Game Engine")
 
+async def timeout_callback(websocket: WebSocket):
+    await asyncio.sleep(0.1)
+    await websocket.send_json({"data": "round_over"})
+
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, background_tasks: BackgroundTasks):
     print('Connecting client...')
     await websocket.accept()
     while True:
         try:
-            # Wait for any message from the client
-            await websocket.receive_text()
-            # Send message to the client
-            await websocket.send_text("Received message")
+            request = await websocket.receive_json()
 
-            # When client sends message from UI like ({'action': 'place_order', data: {suit: 'hearts', price: 10, is_bid: false}})
-            # We should be able to figure out what function to call based on action (should make constants file for these)
-            # On each action, we do some internal logic and then websocket.send something back to client for updating UI
-            # https://github.com/penumbragames/tankanarchy/blob/master/server.js pretty useful resource (but in JS)
+            if request['action'] == 'add_player':
+              print("Adding player...")
+              # await websocket.send_json()
+
+            if request['action'] == 'start_game':
+              print("Starting game...")
+              Timer(240, timeout_callback, websocket)
+
+            if request['action'] == 'place_order':
+              print("Placing order...")
+              # await websocket.send_json()
+            
+            if request['action'] == 'cancel order':
+              print("Cancelling order...")
+              # await websocket.send_json()
+
+            if request['action'] == 'accept_order':
+              print("Accepting order...")
+              # await websocket.send_json()
+
         except Exception as e:
             print('error:', e)
             break
