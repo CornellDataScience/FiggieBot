@@ -1,17 +1,20 @@
-from fastapi import FastAPI, WebSocket, BackgroundTasks
+from fastapi import FastAPI, WebSocket
 import json
 import asyncio
 
 class Timer:
-    def __init__(self, timeout, callback, websocket):
+    def __init__(self, timeout):
         self._timeout = timeout
-        self._callback = callback
-        self._websocket = websocket
         self._task = asyncio.ensure_future(self._job())
 
     async def _job(self):
-        await asyncio.sleep(self._timeout)
-        await self._callback(self._websocket)
+        while(self._timeout > 0):
+          await asyncio.sleep(1)
+          self._timeout -= 1
+          # broadcast timer to all clients - should abstract broadcast function
+          for websocket in clients.values():
+            await websocket.send_json({"type": "timer", "data": self._timeout})
+        # broadcast that game ended
 
     def cancel(self):
         self._task.cancel()
@@ -25,7 +28,6 @@ class Player:
     self.num_diamonds = num_diamonds
     self.num_clubs = num_clubs
     self.num_spades = num_spades
-
 
 class Order:
   def __init__(order_id, player, is_bid, suit, price, time_stamp):
@@ -47,19 +49,16 @@ class OrderBook:
     self.spades_bids = spades_bids
     self.spades_offers = spades_offers
 
-players = []
+clients = {} # map of (player_id, websocket)
+players = {} # map of (player_id, Player)
 round_number = 0
 order_book = OrderBook([], [], [], [], [], [], [], [])
 next_order_id = 0
 
 app = FastAPI(title="FiggieBot Game Engine")
 
-async def timeout_callback(websocket: WebSocket):
-    await asyncio.sleep(0.1)
-    await websocket.send_json({"data": "round_over"})
-
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, background_tasks: BackgroundTasks):
+async def websocket_endpoint(websocket: WebSocket):
     print('Connecting client...')
     await websocket.accept()
     while True:
@@ -68,23 +67,22 @@ async def websocket_endpoint(websocket: WebSocket, background_tasks: BackgroundT
 
             if request['action'] == 'add_player':
               print("Adding player...")
-              # await websocket.send_json()
+              player_id = request['player_id']
+              clients[player_id] = websocket
+              players[player_id] = Player(player_id, 13, 13, 13, 13, 100, [])
 
             if request['action'] == 'start_game':
               print("Starting game...")
-              Timer(240, timeout_callback, websocket)
+              Timer(240)
 
             if request['action'] == 'place_order':
               print("Placing order...")
-              # await websocket.send_json()
             
             if request['action'] == 'cancel order':
               print("Cancelling order...")
-              # await websocket.send_json()
 
             if request['action'] == 'accept_order':
               print("Accepting order...")
-              # await websocket.send_json()
 
         except Exception as e:
             print('error:', e)
