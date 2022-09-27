@@ -10,17 +10,18 @@ class Timer:
         while(self._timeout > 0):
           await asyncio.sleep(1)
           self._timeout -= 1
-          # should this broadcast be personalized to player?
+          # should this broadcast be personalized to player? only send player their own info
+          # maybe include numPlayers in broadcast
           await broadcast({
             "type": "update_game",
             "data": {
               "round_number": round_number,
               "time": self._timeout,
-              "players": [vars(players[player_id]) for player_id in players],
-              "order_book": vars(order_book)
+              "players": [vars(players[player_id]) for player_id in players], # make sure individual order objects are converted to dicts
+              "order_book": vars(order_book) # make sure individual order objects are converted to dicts
             }
           })
-        await broadcast({"type": "end_game"})
+        await broadcast({"type": "end_game"}) # call some sort of end game function to distribute money and reset game state
 
     def cancel(self):
         self._task.cancel()
