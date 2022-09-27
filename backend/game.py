@@ -37,8 +37,13 @@ async def add_player(player_id, websocket):
 
 async def start_game():
   Timer(240)
+  # make sure we have enough players
   # randomize cards and deal to players
   await broadcast({"type": "start_game"})
+
+# place order
+# cancel order
+# accept order
 
 clients = {} # map of (player_id, websocket)
 players = {} # map of (player_id, Player)

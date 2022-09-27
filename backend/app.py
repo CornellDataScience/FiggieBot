@@ -11,10 +11,11 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         try:
             request = await websocket.receive_json()
+            data = request['data']
 
             if request['type'] == 'add_player':
               print("Adding player...")
-              await game.add_player(request['player_id'], websocket)
+              await game.add_player(data['player_id'], websocket)
 
             if request['type'] == 'start_game':
               print("Starting game...")
