@@ -10,29 +10,29 @@ class Timer:
         while(self._timeout > 0):
           await asyncio.sleep(1)
           self._timeout -= 1
-          # should this broadcast be personalized to player? only send player their own info
-          # maybe include numPlayers in broadcast
-          await broadcast({
-            "type": "update_game",
-            "data": {
-              "round_number": round_number,
-              "time": self._timeout,
-              "players": [vars(players[player_id]) for player_id in players], # make sure individual order objects are converted to dicts
-              "order_book": vars(order_book) # make sure individual order objects are converted to dicts
-            }
-          })
+          all_player_data = [players[player_id].publicToDict() for player_id in players]
+          for player in players.values():
+            await player.websocket.send_json({
+              "type": "update_game",
+              "data": {
+                "round_number": round_number,
+                "time": self._timeout,
+                "player": player.privateToDict(),
+                "players": all_player_data,
+                "order_book": order_book.toDict()
+              }
+            })
         await broadcast({"type": "end_game"}) # call some sort of end game function to distribute money and reset game state
 
     def cancel(self):
         self._task.cancel()
 
 async def broadcast(json_message):
-  for websocket in clients.values():
-    await websocket.send_json(json_message)
+  for player in players.values():
+    await player.websocket.send_json(json_message)
 
 async def add_player(player_id, websocket):
-  clients[player_id] = websocket
-  players[player_id] = Player(player_id, 0, 0, 0, 0, 350, [])
+  players[player_id] = Player(player_id, websocket, 0, 0, 0, 0, 350, [])
   # make sure no repeat names (override other players)
 
 async def start_game():
@@ -45,7 +45,6 @@ async def start_game():
 # cancel order
 # accept order
 
-clients = {} # map of (player_id, websocket)
 players = {} # map of (player_id, Player)
 round_number = 0
 order_book = OrderBook([], [], [], [], [], [], [], [])
