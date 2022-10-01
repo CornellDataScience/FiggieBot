@@ -22,7 +22,7 @@ class Timer:
                 "order_book": order_book.toDict()
               }
             })
-        await broadcast({"type": "end_game"}) # call some sort of end game function to distribute money and reset game state
+        await end_game()
 
     def cancel(self):
         self._task.cancel()
@@ -40,6 +40,13 @@ async def start_game():
   # make sure we have enough players
   # randomize cards and deal to players
   await broadcast({"type": "start_game"})
+
+async def end_game():
+  # calculate money distributed to players based on goal suit (Iram's goal suit var)
+  # if goal suit == "clubs": for all players, add num_clubs * 10 to balance
+  round_number += 1
+  # reset order book (Eric's clear order book func)
+  await broadcast({"type": "end_game"})
 
 # place order
 # cancel order
