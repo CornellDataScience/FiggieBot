@@ -9,7 +9,7 @@ class Player:
     self.num_spades = num_spades
 
 class Order:
-  def __init__(order_id, player, is_bid, suit, price, time_stamp):
+  def __init__(self,order_id, player, is_bid, suit, price, time_stamp):
     self.order_id = order_id
     self.player = player
     self.is_bid = is_bid
