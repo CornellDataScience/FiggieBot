@@ -1,6 +1,6 @@
 import asyncio
 from classes import Player, Order, OrderBook 
-
+import random
 class Timer:
     def __init__(self, timeout):
         self._timeout = timeout
@@ -45,7 +45,68 @@ async def start_game():
 # cancel order
 # accept order
 
+
+""" Helper function: Counts the number of each suit in a deck of cards
+"""
+def countCards(deck):
+  counter = {}
+  for card in deck:
+    if card not in counter:
+      counter[card] = 1
+    else:
+      counter[card] += 1
+  print(counter)
+
+"""Generate a random deck of 40 cards with the proper specifications for a game of Figgie
+"""
+def randomizeSuit():
+  #generate random goal suit, append 8 cards to cardArray of the goal suit
+  cardArray = []
+  suits = ["diamond","club","heart","spade"]
+  goalSuitInt = random.randint(0,3)
+  print(goalSuitInt)
+  for i in range(8):
+    cardArray.append(suits[goalSuitInt])
+ 
+  #randomize whether the suit opposite the goal suit is 10 or 12 cards
+  numberOppositeCards = random.randint(0,1)
+  for i in range(4):
+    print(i)
+    if i != goalSuitInt and i%2 == goalSuitInt%2:
+      if numberOppositeCards==0:
+        for j in range(10):
+          cardArray.append(suits[i])
+      else:
+        for j in range(12):
+          cardArray.append(suits[i])
+      suits.pop(i)
+      suits.remove(cardArray[0])
+
+  #if opposite goal suit has 12 cards, just append 10 of each remaining suit
+  #if opposite goal suit has 10 cards, randomize which of remaining suits 
+  #gets 12 cards and the other will get 10
+
+  if numberOppositeCards == 1:
+    for i in range(10):
+      cardArray.append(suits[0])
+      cardArray.append(suits[1])
+  elif numberOppositeCards == 0:
+    numCards = random.randint(0,1)
+    for i in range(10):
+      cardArray.append(suits[numCards])
+    for i in range(12):
+      cardArray.append(suits[1-numCards])
+  countCards(cardArray)
+  return cardArray
+
+#shuffle deck and then distribute cards to each player 
+def dealCards(deck):
+
+  return 
+
 players = {} # map of (player_id, Player)
 round_number = 0
 order_book = OrderBook([], [], [], [], [], [], [], [])
 next_order_id = 0
+
+randomizeSuit()
