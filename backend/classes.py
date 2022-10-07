@@ -1,7 +1,7 @@
 import json
 
 class Player:
-  def __init__(self, player_id, websocket, orders, balance, num_hearts, num_diamonds, num_clubs, num_spades):
+  def __init__(self, player_id, websocket, balance, num_hearts, num_diamonds, num_clubs, num_spades):
     self.player_id = player_id
     self.websocket = websocket
     self.balance = balance
@@ -21,7 +21,11 @@ class Player:
           "balance": self.balance
       }
       return dict
-
+  def printHand(self):
+    print("Your hand has " + str(self.num_diamonds) + " diamonds.")
+    print("Your hand has " + str(self.num_clubs) + " clubs.")
+    print("Your hand has " + str(self.num_hearts) + " hearts.")
+    print("Your hand has " + str(self.num_spades) + " spades.")
 class Order:
   def __init__(self, order_id, player_id, is_bid, suit, price, time_stamp):
     self.order_id = order_id
