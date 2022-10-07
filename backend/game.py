@@ -22,7 +22,7 @@ class Timer:
                 "order_book": order_book.toDict()
               }
             })
-        await end_game()
+        await end_round()
 
     def cancel(self):
         self._task.cancel()
@@ -41,12 +41,33 @@ async def start_game():
   # randomize cards and deal to players
   await broadcast({"type": "start_game"})
 
-async def end_game():
-  # calculate money distributed to players based on goal suit (Iram's goal suit var)
-  # if goal suit == "clubs": for all players, add num_clubs * 10 to balance
+"""
+Function to call when a round ends. Distributes money to players based
+on their number of cards of the goal suit. Then, resets the order book.
+Broadcasts a message to all players that the round has ended.
+"""
+async def end_round():
+  for player in players.values():
+    if goal_suit == "diamonds":
+      player.balance += player.num_diamonds * 10
+    if goal_suit == "hearts":
+      player.balance += player.num_hearts * 10
+    if goal_suit == "spades":
+      player.balance += player.num_spades * 10
+    if goal_suit == "clubs":
+      player.balance += player.num_clubs * 10
   round_number += 1
+  goal_suit = ""
   # reset order book (Eric's clear order book func)
-  await broadcast({"type": "end_game"})
+  await broadcast({"type": "end_round"})
+
+"""
+Function to call when game ends. Calculates winner based on balances
+and broadcasts to all players who the winner is.
+"""
+async def end_game():
+  winner = max(players, key=lambda player_id: players[player_id].balance)
+  await broadcast({"type": "end_game", "data": {"winner": winner}})
 
 # place order
 # cancel order
