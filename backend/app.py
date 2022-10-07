@@ -21,6 +21,10 @@ async def websocket_endpoint(websocket: WebSocket):
               print("Starting game...")
               await game.start_game()
 
+            if request['type'] == 'start_game':
+              print("Ending game...")
+              await game.end_game()
+
             if request['type'] == 'place_order':
               print("Placing order...")
             

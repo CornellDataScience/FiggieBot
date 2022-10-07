@@ -1,6 +1,12 @@
 import asyncio
 from classes import Player, Order, OrderBook 
 import random
+
+"""
+Begins a timer that will end the round after the given number of seconds.
+At each second, broadcasts a message to each player to update them on the
+game state. When the timer ends, redistribute pot accordingly.
+"""
 class Timer:
     def __init__(self, timeout):
         self._timeout = timeout
@@ -22,26 +28,65 @@ class Timer:
                 "order_book": order_book.toDict()
               }
             })
-        await broadcast({"type": "end_game"}) # call some sort of end game function to distribute money and reset game state
+        await end_round()
 
     def cancel(self):
         self._task.cancel()
 
+"""
+Broadcasts a given json_message to all players in the game.
+"""
 async def broadcast(json_message):
   for player in players.values():
     await player.websocket.send_json(json_message)
 
+"""
+Adds a player to the game. If a player with this name already exists, send
+an error message to the client.
+"""
 async def add_player(player_id, websocket):
+  if player_id in players:
+    websocket.send_json({"type": "error", "data": {"message": "Player already exists"}})
   players[player_id] = Player(player_id, websocket, 350, 0, 0, 0, 0)
-  print(players)
-  # make sure no repeat names (override other players)
 
+"""
+Starts the game timer and randomizes the cards for each player.
+"""
 async def start_game():
   deal_cards(randomize_suit())
   Timer(240)
   # make sure we have enough players
   # randomize cards and deal to players
   await broadcast({"type": "start_game"})
+
+"""
+Function to call when a round ends. Distributes money to players based
+on their number of cards of the goal suit. Then, resets the order book.
+Broadcasts a message to all players that the round has ended.
+"""
+async def end_round():
+  for player in players.values():
+    if goal_suit == "diamonds":
+      player.balance += player.num_diamonds * 10
+    if goal_suit == "hearts":
+      player.balance += player.num_hearts * 10
+    if goal_suit == "spades":
+      player.balance += player.num_spades * 10
+    if goal_suit == "clubs":
+      player.balance += player.num_clubs * 10
+  round_number += 1
+  goal_suit = ""
+  # reset order book (Eric's clear order book func)
+  await broadcast({"type": "end_round"})
+
+"""
+Function to call when game ends. Calculates winner based on balances
+and broadcasts to all players who the winner is.
+"""
+async def end_game():
+  winner = max(players, key=lambda player_id: players[player_id].balance)
+  await broadcast({"type": "end_game", "data": {"winner": winner}})
+
 # place order
 # cancel order
 # accept order
@@ -51,7 +96,8 @@ goal_suit_int = random.randint(0,3)
 suits = ["diamond","club","heart","spade"]
 goal_suit = suits[goal_suit_int]
 
-""" Helper function: Counts the number of each suit in a deck of cards
+"""
+Helper function: Counts the number of each suit in a deck of cards
 """
 def count_cards(deck):
   counter = {}
@@ -62,7 +108,9 @@ def count_cards(deck):
       counter[card] += 1
   print(counter)
 
-"""Generate a random deck of 40 cards with the proper specifications for a game of Figgie
+"""
+Generate a random deck of 40 cards with 8 of the goal suit, 10 or 12 of the
+opposite suit, and 10 or 12 of the remaining two suits.
 """
 def randomize_suit():
   #generate random goal suit, append 8 cards to cardArray of the goal suit
@@ -102,7 +150,8 @@ def randomize_suit():
   return card_array
 
 
-"""Requires: 4 players already added to game
+"""
+Requires: 4 players already added to game
 shuffle deck and then distribute cards to each player
 """
 #40 cards deal 0,4,8...36
