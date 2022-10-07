@@ -1,6 +1,7 @@
 import asyncio
 from classes import Player, Order, OrderBook 
 import random
+
 """
 Begins a timer that will end the round after the given number of seconds.
 At each second, broadcasts a message to each player to update them on the
@@ -39,17 +40,25 @@ async def broadcast(json_message):
   for player in players.values():
     await player.websocket.send_json(json_message)
 
+"""
+Adds a player to the game. If a player with this name already exists, send
+an error message to the client.
+"""
 async def add_player(player_id, websocket):
+  if player_id in players:
+    websocket.send_json({"type": "error", "data": {"message": "Player already exists"}})
   players[player_id] = Player(player_id, websocket, 350, 0, 0, 0, 0)
-  print(players)
-  # make sure no repeat names (override other players)
 
+"""
+Starts the game timer and randomizes the cards for each player.
+"""
 async def start_game():
   dealCards(randomizeSuit())
   Timer(240)
   # make sure we have enough players
   # randomize cards and deal to players
   await broadcast({"type": "start_game"})
+
 """
 Function to call when a round ends. Distributes money to players based
 on their number of cards of the goal suit. Then, resets the order book.
@@ -87,7 +96,8 @@ goalSuitInt = random.randint(0,3)
 suits = ["diamond","club","heart","spade"]
 goalSuit = suits[goalSuitInt]
 
-""" Helper function: Counts the number of each suit in a deck of cards
+"""
+Helper function: Counts the number of each suit in a deck of cards
 """
 def countCards(deck):
   counter = {}
@@ -98,7 +108,9 @@ def countCards(deck):
       counter[card] += 1
   print(counter)
 
-"""Generate a random deck of 40 cards with the proper specifications for a game of Figgie
+"""
+Generate a random deck of 40 cards with 8 of the goal suit, 10 or 12 of the
+opposite suit, and 10 or 12 of the remaining two suits.
 """
 def randomizeSuit():
   #generate random goal suit, append 8 cards to cardArray of the goal suit
@@ -138,7 +150,8 @@ def randomizeSuit():
   return cardArray
 
 
-"""Requires: 4 players already added to game
+"""
+Requires: 4 players already added to game
 shuffle deck and then distribute cards to each player
 """
 #40 cards deal 0,4,8...36
