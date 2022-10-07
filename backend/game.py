@@ -1,6 +1,11 @@
 import asyncio
 from classes import Player, Order, OrderBook 
 
+"""
+Begins a timer that will end the round after the given number of seconds.
+At each second, broadcasts a message to each player to update them on the
+game state. When the timer ends, redistribute pot accordingly.
+"""
 class Timer:
     def __init__(self, timeout):
         self._timeout = timeout
@@ -27,6 +32,9 @@ class Timer:
     def cancel(self):
         self._task.cancel()
 
+"""
+Broadcasts a given json_message to all players in the game.
+"""
 async def broadcast(json_message):
   for player in players.values():
     await player.websocket.send_json(json_message)
