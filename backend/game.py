@@ -8,7 +8,6 @@ players = {}  # map of (player_id, Player)
 round_number = 0
 empty_bid = Order(-1, -1, True, 0, 0)
 empty_offer = Order(-1, -1, False, 0, 0)
-# order_book = OrderBook(empty_bid, empty_offer, empty_bid, empty_offer, empty_bid, empty_offer, empty_bid, empty_offer)
 empty_bids = {"hearts": empty_bid, "diamonds": empty_bid,
               "clubs": empty_bid, "spades": empty_bid}
 empty_offers = {"hearts": empty_offer, "diamonds": empty_offer,
@@ -18,14 +17,13 @@ order_book = {"bids": empty_bids, "offers": empty_offers}
 next_order_id = 0
 
 
-"""
-Begins a timer that will end the round after the given number of seconds.
-At each second, broadcasts a message to each player to update them on the
-game state. When the timer ends, redistribute pot accordingly.
-"""
-
-
 class Timer:
+    """
+    Begins a timer that will end the round after the given number of seconds.
+    At each second, broadcasts a message to each player to update them on the
+    game state. When the timer ends, redistribute pot accordingly.
+    """
+
     def __init__(self, timeout):
         self._timeout = timeout
         self._task = asyncio.ensure_future(self._job())
@@ -53,33 +51,29 @@ class Timer:
         self._task.cancel()
 
 
-"""
-Broadcasts a given json_message to all players in the game.
-"""
-
-
 async def broadcast(json_message):
+    """
+    Broadcasts a given json_message to all players in the game.
+    """
     for player in players.values():
         await player.websocket.send_json(json_message)
 
-"""
-Adds a player to the game. If a player with this name already exists, send
-an error message to the client.
-"""
-
 
 async def add_player(player_id, websocket):
+    """
+    Adds a player to the game. If a player with this name already exists, send
+    an error message to the client.
+    """
     if player_id in players:
         websocket.send_json(
             {"type": "error", "data": {"message": "Player already exists"}})
     players[player_id] = Player(player_id, websocket, 350, 0, 0, 0, 0)
 
-"""
-Starts the game timer and randomizes the cards for each player.
-"""
-
 
 async def start_game():
+    """
+    Starts the game timer and randomizes the cards for each player.
+    """
     deal_cards(randomize_suit())
     Timer(240)
     # make sure we have enough players
@@ -172,14 +166,12 @@ def determine_order(player_id, is_bid, suit):
     return [order_type, empty_order, prev_order]
 
 
-"""
-Function to call when a round ends. Distributes money to players based
-on their number of cards of the goal suit. Then, resets the order book.
-Broadcasts a message to all players that the round has ended.
-"""
-
-
 async def end_round():
+    """
+    Function to call when a round ends. Distributes money to players based
+    on their number of cards of the goal suit. Then, resets the order book.
+    Broadcasts a message to all players that the round has ended.
+    """
     for player in players.values():
         if goal_suit == "diamonds":
             player.balance += player.num_diamonds * 10
@@ -191,34 +183,28 @@ async def end_round():
             player.balance += player.num_clubs * 10
     round_number += 1
     goal_suit = ""
-    # reset order book (Eric's clear order book func)
+    clear_book()
     await broadcast({"type": "end_round"})
-
-"""
-Function to call when game ends. Calculates winner based on balances
-and broadcasts to all players who the winner is.
-"""
 
 
 async def end_game():
+    """
+    Function to call when game ends. Calculates winner based on balances
+    and broadcasts to all players who the winner is.
+    """
     winner = max(players, key=lambda player_id: players[player_id].balance)
     await broadcast({"type": "end_game", "data": {"winner": winner}})
-
-# place order
-# cancel order
-# accept order
 
 # Goal Suit
 goal_suit_int = random.randint(0, 3)
 suits = ["diamond", "club", "heart", "spade"]
 goal_suit = suits[goal_suit_int]
 
-"""
-Helper function: Counts the number of each suit in a deck of cards
-"""
-
 
 def count_cards(deck):
+    """
+    Helper function: Counts the number of each suit in a deck of cards
+    """
     counter = {}
     for card in deck:
         if card not in counter:
@@ -228,13 +214,11 @@ def count_cards(deck):
     print(counter)
 
 
-"""
-Generate a random deck of 40 cards with 8 of the goal suit, 10 or 12 of the
-opposite suit, and 10 or 12 of the remaining two suits.
-"""
-
-
 def randomize_suit():
+    """
+    Generate a random deck of 40 cards with 8 of the goal suit, 10 or 12 of the
+    opposite suit, and 10 or 12 of the remaining two suits.
+    """
     # generate random goal suit, append 8 cards to cardArray of the goal suit
     card_array = []
     suits = ["diamond", "club", "heart", "spade"]
@@ -272,17 +256,15 @@ def randomize_suit():
     return card_array
 
 
-"""
-Requires: 4 players already added to game
-shuffle deck and then distribute cards to each player
-"""
-# 40 cards deal 0,4,8...36
-# then deal 1, 5, 9...37
-# then deal 2, 6, 10...38
-#           3,7,11...39
-
-
 def deal_cards(deck):
+    """
+    Requires: 4 players already added to game
+    shuffle deck and then distribute cards to each player
+    """
+    # 40 cards deal 0,4,8...36
+    # then deal 1, 5, 9...37
+    # then deal 2, 6, 10...38
+    #           3,7,11...39
     random.shuffle(deck)
     counter = 0
     for player_id in players:
