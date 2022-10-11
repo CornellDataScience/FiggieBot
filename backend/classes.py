@@ -1,3 +1,6 @@
+import json
+
+
 class Player:
     def __init__(self, player_id, hand, balance, orders):
         self.player_id = player_id
@@ -5,6 +8,27 @@ class Player:
         self.balance = balance
         self.hand = {"hearts": int, "diamonds": int,
                      "clubs": int, "spades": int}
+
+    def privateToDict(self):
+        dict = self.__dict__.copy()
+        dict.pop('websocket')
+        return dict
+
+    def publicToDict(self):
+        dict = {
+            "player_id": self.player_id,
+            "balance": self.balance
+        }
+        return dict
+
+    def printHand(self):
+        print("Your hand has " + str(self.num_diamonds) + " diamonds.")
+        print("Your hand has " + str(self.num_clubs) + " clubs.")
+        print("Your hand has " + str(self.num_hearts) + " hearts.")
+        print("Your hand has " + str(self.num_spades) + " spades.")
+
+    def toDict(self):
+        return self.__dict__
 
 
 class Order:
