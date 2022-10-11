@@ -299,9 +299,3 @@ def deal_cards(deck):
         counter += 1
         player_hand.printHand()
     return
-
-
-players = {}  # map of (player_id, Player)
-round_number = 0
-order_book = OrderBook([], [], [], [], [], [], [], [])
-next_order_id = 0
