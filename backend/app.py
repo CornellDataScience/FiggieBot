@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import json
 import game
 
@@ -37,8 +37,12 @@ async def websocket_endpoint(websocket: WebSocket):
             if request['type'] == 'accept_order':
                 print("Accepting order...")
                 game.accept_order(data['buyer_id'], data['seller_id'], data['suit'], data['price'])
+        
+        except WebSocketDisconnect:
+            print('Disconnecting client...')
+            break
 
         except Exception as e:
             print('error:', e)
-            break
+    
     print('Disconnecting client...')
