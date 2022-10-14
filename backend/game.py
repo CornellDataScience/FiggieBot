@@ -1,6 +1,6 @@
 import random
 import asyncio
-from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS
+from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BIDS, EMPTY_OFFER
 from classes import Player, Bid, Offer
 import json
 
@@ -198,7 +198,7 @@ def deal_cards():
     opposite suit, and 10 or 12 of the remaining two suits.
 
     Requires: 4 players already added to game
-    shuffle deck and then distribute cards to each player
+    shuffles deck and then distribute cards to each player
     """
     deck = [] 
     suits = SUITS.copy()
