@@ -22,10 +22,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 print("Ending game...")
                 await game.end_game()
 
-            if request['type'] == 'start_round':
-                print("Starting round...")
-                await game.start_round()
-
             if request['type'] == 'add_player':
                 print("Adding player...")
                 await game.add_player(data['player_id'], websocket)
