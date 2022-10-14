@@ -1,6 +1,6 @@
 import random
 import asyncio
-from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BIDS, EMPTY_OFFER
+from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
 from classes import Player, Bid, Offer
 import json
 
@@ -167,7 +167,7 @@ def determine_order(player_id, is_bid, suit):
     """
     if is_bid:
         order_type = "bids"
-        empty_order = EMPTY_BIDS
+        empty_order = EMPTY_BID
     else:
         order_type = "offers"
         empty_order = EMPTY_OFFER
