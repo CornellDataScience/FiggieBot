@@ -1,0 +1,24 @@
+.searchbar .username-input {
+    width: 298px;
+    height: 33px;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #666;
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.play-button {
+    margin-top: 20px;
+    background-color: rgb(47, 181, 82);
+    cursor: pointer;
+    width: 300px;
+    height: 35px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border: 0;
+    outline: 0;
+    padding: 10px 35px;
+}
