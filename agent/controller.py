@@ -1,11 +1,14 @@
-import asyncio
-import websockets
 import json
 
 
 async def add_player(ws, player_id):
-    my_json = {"type": "add_player", "data": {"player_id": player_id}}
-    await ws.send(json.dumps(my_json))
+    add_json = {"type": "add_player", "data": {"player_id": player_id}}
+    await ws.send(json.dumps(add_json))
+
+
+async def start_game(ws):
+    start_json = {"type": "start_game", "data": {}}
+    await ws.send(json.dumps(start_json))
 
 cancel_json = {"type": "cancel_order", "data": {
     "player_id": "Connor", "is_bid": "true", "suit": "clubs"}}
