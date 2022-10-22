@@ -114,8 +114,7 @@ def place_order(player_id, is_bid, suit, price):
         new_order = Offer(next_order_id, player_id, suit, price)
 
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
-
-    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and prev_order.price > price):
+    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)): # prev order price doesn't work 
         order_book[order_type][suit] = new_order
         next_order_id += 1
 
