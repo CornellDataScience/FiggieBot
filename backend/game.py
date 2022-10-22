@@ -165,7 +165,7 @@ def accept_order(accepter_id, is_bid, suit):
         buyer.balance -= order.price
         seller.balance += order.price
         clear_book()
-
+        print("Player " + seller + " sold " + suit + " to Player" + buyer + " for " + order.price) 
 
 def clear_book():
     """
