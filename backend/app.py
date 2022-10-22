@@ -36,7 +36,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             if request['type'] == 'accept_order':
                 print("Accepting order...")
-                game.accept_order(data['buyer_id'], data['seller_id'], data['suit'], data['price'])
+                game.accept_order(data['accepter_id'], data['is_bid'], data['suit'])
         
         except WebSocketDisconnect:
             print('Disconnecting client...')
