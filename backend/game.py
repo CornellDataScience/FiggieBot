@@ -9,6 +9,8 @@ round_number = 0
 next_order_id = 0
 order_book = EMPTY_ORDER_BOOK.copy()
 goal_suit = SUITS[random.randint(0, 3)]
+pot = 0
+
 
 class Timer:
     """
@@ -16,6 +18,7 @@ class Timer:
     At each second, broadcasts a message to each player to update them on the
     game state. When the timer ends, redistribute pot accordingly.
     """
+
     def __init__(self, timeout):
         self._timeout = timeout
         self._task = asyncio.ensure_future(self._job())
@@ -58,6 +61,16 @@ async def start_game():
     goal_suit = SUITS[random.randint(0, 3)]
     deal_cards()
     Timer(240)
+    enough_money = True
+    for player in players.values():
+        if player.balance < 50:
+            enough_money = False
+
+    if enough_money:
+        for player in players.values():
+            player.balance -= 50
+            pot += 50
+
     await broadcast({"type": "start_game"})
 
 
@@ -77,8 +90,29 @@ async def end_round():
     Broadcasts a message to all players that the round has ended.
     """
     for player in players.values():
-        player.balance += player.hand[goal_suit] * 10
+        num_goal_suit = player.hand[goal_suit]
+        player.balance += num_goal_suit * 10
+        pot -= num_goal_suit * 10
+    round_winner = max(
+        players, key=lambda player_id: players[player_id].hand[goal_suit])
+    players[round_winner].balance += pot
     round_number += 1
+
+    max_goal_suits = 0
+    round_winners = []
+    for player in players.values():
+        num_goal_suit = player.hand[goal_suit]
+        if num_goal_suit > max_goal_suits:
+            max_goal_suits = num_goal_suit
+            round_winners = []
+            round_winners.append(player.player_id)
+        elif num_goal_suit == max_goal_suits:
+            round_winners.append(player.player_id)
+
+    for player_id in round_winners:
+        num_round_winners = len(round_winners)
+        players[player_id].balance += pot/num_round_winners
+
     goal_suit = SUITS[random.randint(0, 3)]
     clear_book()
     await broadcast({"type": "end_round"})
@@ -125,7 +159,8 @@ def cancel_order(player_id, is_bid, suit):
     CANCEL ORDER:
     - update the order book with an empty bid/offer
     """
-    order_type, empty_order, prev_order = determine_order(player_id, is_bid, suit)
+    order_type, empty_order, prev_order = determine_order(
+        player_id, is_bid, suit)
 
     if prev_order.player_id == player_id:
         order_book[order_type][suit] = empty_order
@@ -157,12 +192,14 @@ def accept_order(accepter_id, is_bid, suit):
         seller.balance += order.price
         clear_book()
 
+
 def clear_book():
     """
     CLEAR BOOK:
     - clear the entire order book of bids/offers
     """
     order_book = EMPTY_ORDER_BOOK.copy()
+
 
 def determine_order(player_id, is_bid, suit):
     """
@@ -184,6 +221,7 @@ def determine_order(player_id, is_bid, suit):
     prev_order = order_book[order_type][suit]
 
     return [order_type, empty_order, prev_order]
+
 
 def order_book_to_dict(order_book):
     """
@@ -209,7 +247,7 @@ def deal_cards():
     Requires: 4 players already added to game
     shuffles deck and then distribute cards to each player
     """
-    deck = [] 
+    deck = []
     suits = SUITS.copy()
 
     # same color but not goal suit gets 12
@@ -221,7 +259,7 @@ def deal_cards():
         deck.extend([CLUBS] * 12)
     elif goal_suit == CLUBS:
         deck.extend([SPADES] * 12)
-    
+
     # goal suit gets 8 or 10
     num_of_goal_suit = random.choice([8, 10])
     deck.extend([goal_suit] * num_of_goal_suit)
