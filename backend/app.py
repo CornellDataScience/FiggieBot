@@ -3,8 +3,6 @@ import json
 import game
 
 app = FastAPI(title="FiggieBot Game Engine")
-
-
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     print('Connecting client...')
