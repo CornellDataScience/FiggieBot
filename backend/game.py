@@ -59,6 +59,7 @@ async def start_game():
     deal_cards()
     Timer(240)
     await broadcast({"type": "start_game"})
+    print("Starting game...")
 
 
 async def end_game():
@@ -68,6 +69,7 @@ async def end_game():
     """
     winner = max(players, key=lambda player_id: players[player_id].balance)
     await broadcast({"type": "end_game", "data": {"winner": winner}})
+    print("Ending game...")
 
 
 async def end_round():
@@ -94,6 +96,7 @@ async def add_player(player_id, websocket):
             {"type": "error", "data": {"message": "Player already exists"}})
         return
     players[player_id] = Player(player_id, websocket, 350)
+    print("Adding player with id: " + player_id)
 
 
 def place_order(player_id, is_bid, suit, price):
@@ -118,6 +121,9 @@ def place_order(player_id, is_bid, suit, price):
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and prev_order.price > price):
         order_book[order_type][suit] = new_order
         next_order_id += 1
+    
+    action = " bids " if is_bid else " offers "
+    print("Player " + player_id + action + str(price) + " for " + suit)
 
 
 def cancel_order(player_id, is_bid, suit):
@@ -129,6 +135,9 @@ def cancel_order(player_id, is_bid, suit):
 
     if prev_order.player_id == player_id:
         order_book[order_type][suit] = empty_order
+    
+    action = " bid " if is_bid else " offer "
+    print("Player " + player_id + " canceled" + action + "for " + suit)
 
 
 def accept_order(buyer_id, seller_id, suit, price):
@@ -147,6 +156,7 @@ def accept_order(buyer_id, seller_id, suit, price):
         buyer.balance -= price
         seller.balance += price
         clear_book()
+
 
 def clear_book():
     """
