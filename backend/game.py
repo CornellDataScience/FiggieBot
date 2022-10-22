@@ -131,21 +131,30 @@ def cancel_order(player_id, is_bid, suit):
         order_book[order_type][suit] = empty_order
 
 
-def accept_order(buyer_id, seller_id, suit, price):
+def accept_order(accepter_id, is_bid, suit):
     """
     ACCEPT ORDER:
     - check if an order can and should be accepted
     - update the order book by removing all current bids/offers
     - update the money and hand (i.e. count, kind) of cards for the two players involved
     """
-    buyer = players[buyer_id]
-    seller = players[seller_id]
+    order = order_book["bids" if is_bid else "offers"][suit]
 
-    if (seller.hand[suit] > 0) and (buyer.balance >= price):
+    if order.player_id == accepter_id:
+        return
+
+    if is_bid:
+        buyer = players[order.player_id]
+        seller = players[accepter_id]
+    else:
+        buyer = players[accepter_id]
+        seller = players[order.player_id]
+
+    if (seller.hand[suit] > 0) and (buyer.balance >= order.price):
         buyer.hand[suit] += 1
         seller.hand[suit] -= 1
-        buyer.balance -= price
-        seller.balance += price
+        buyer.balance -= order.price
+        seller.balance += order.price
         clear_book()
 
 def clear_book():
