@@ -76,6 +76,9 @@ async def end_round():
     on their number of cards of the goal suit. Then, resets the order book.
     Broadcasts a message to all players that the round has ended.
     """
+    global goal_suit
+    global round_number
+
     for player in players.values():
         player.balance += player.hand[goal_suit] * 10
     round_number += 1

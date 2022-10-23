@@ -4,17 +4,19 @@ Creating a game to play Figgie &amp; Train an agent to play against
 
 ## How to Run the Backend Locally
 
-- cd backend
-- python3 -m venv my_venv (only must do on first time setup)
+- Enter backend folder: `cd backend`
+- Create virtual env called my_venv (only must do on first time setup): `python3 -m venv my_venv`
 - Activate virtual environment
-  - Windows Git Bash: source my_venv/Scripts/activate
-  - Mac: source ". my_venv/bin/activate"
-- pip install fastapi "uvicorn[standard]" (only must do on first time setup)
-- uvicorn app:app --reload
+  - Windows Git Bash: `source my_venv/Scripts/activate`
+  - Mac: `source ". my_venv/bin/activate"`
+- Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
+- Start application: `uvicorn app:app --reload`
 - Websocket available at: ws://127.0.0.1:8000/ws
 
 ## Backend WebSocket Inputs/Outputs Examples
+
 ### Inputs
+
 - Add players: `{"type": "add_player", "data": {"player_id": "Connor"}}`
 - Start Game: `{"type": "start_game", "data": {}}`
 - End Game: `{"type": "end_game", "data": {}}`
@@ -23,7 +25,9 @@ Creating a game to play Figgie &amp; Train an agent to play against
 - Accept Order: `{"type": "accept_order", "data": {"accepter_id": "Pun", "is_bid": true, "suit": "clubs"}}`
 
 ### Output
-- Game State (broadcasted every second during round): 
+
+- Game State (broadcasted every second during round):
+
 ```
 {
   "type": "update_game",
