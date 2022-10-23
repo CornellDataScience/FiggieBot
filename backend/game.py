@@ -3,11 +3,12 @@ import asyncio
 from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
 from classes import Player, Bid, Offer
 import json
+import copy
 
 players = {}  # map of (player_id, Player)
 round_number = 0
 next_order_id = 0
-order_book = EMPTY_ORDER_BOOK.copy()
+order_book = copy.deepcopy(EMPTY_ORDER_BOOK)
 goal_suit = SUITS[random.randint(0, 3)]
 
 class Timer:
@@ -55,6 +56,8 @@ async def start_game():
     """
     Starts the game timer and randomizes the cards for each player.
     """
+    global goal_suit
+
     goal_suit = SUITS[random.randint(0, 3)]
     deal_cards()
     Timer(240)
@@ -110,6 +113,7 @@ def place_order(player_id, is_bid, suit, price):
     message and/or return void or just the current order book unchanged)
     """
     global next_order_id
+    global order_book
 
     if is_bid:
         new_order = Bid(next_order_id, player_id, suit, price)
@@ -117,7 +121,7 @@ def place_order(player_id, is_bid, suit, price):
         new_order = Offer(next_order_id, player_id, suit, price)
 
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
-    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)): # prev order price doesn't work 
+    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
 
@@ -164,7 +168,9 @@ def clear_book():
     CLEAR BOOK:
     - clear the entire order book of bids/offers
     """
-    order_book = EMPTY_ORDER_BOOK.copy()
+    global order_book
+
+    order_book = copy.deepcopy(EMPTY_ORDER_BOOK)
 
 def determine_order(player_id, is_bid, suit):
     """
@@ -201,6 +207,14 @@ def order_book_to_dict(order_book):
             for suit in SUITS
         }
     }
+
+def get_book():
+    """
+    GET BOOK:
+    - return the entire order book of bids/offers
+    Used for test file.
+    """
+    return order_book
 
 
 def deal_cards():
