@@ -77,3 +77,8 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
   }
 }
 ```
+
+## How to Run Tests
+
+- Enter backend folder: `cd backend`
+- Run test file: `python test.py`
