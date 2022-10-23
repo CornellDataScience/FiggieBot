@@ -1,3 +1,4 @@
 backend/my_venv
 backend/__pycache__
+agent/__pycache__
 .DS_Store
