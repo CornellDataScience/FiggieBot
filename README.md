@@ -7,7 +7,7 @@ Creating a game to play Figgie &amp; Train an agent to play against
 ### Mac
 
 - Enter backend folder: `cd backend`
-- Create virtual env called my_venv (only must do on first time setup): `python3 -m venv my_venv`
+- Create virtual env called my_venv (only must do on first time setup): `python -m venv my_venv`
 - Activate virtual environment: `source ". my_venv/bin/activate"`
 - Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
 - Start application: `uvicorn app:app --reload`
