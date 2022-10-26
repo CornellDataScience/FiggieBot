@@ -1,8 +1,8 @@
 import asyncio
 import websockets
-import controller
+from . import controller
 import random
-import constants
+from src.util import constants
 
 '''
 A player that places random bids in the range [bid_low, bid_high], and random offers in the range [offer_low, offer_high]

@@ -1,5 +1,5 @@
 import json
-import constants
+from . import constants
 
 class Player:
     def __init__(self, player_id, websocket, balance):

@@ -1,7 +1,7 @@
 import random
 import asyncio
-from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
-from classes import Player, Bid, Offer
+from src.util.constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
+from src.util.classes import Player, Bid, Offer
 import json
 
 players = {}  # map of (player_id, Player)
@@ -10,18 +10,20 @@ next_order_id = 0
 order_book = EMPTY_ORDER_BOOK.copy()
 goal_suit = SUITS[random.randint(0, 3)]
 
+
 class Timer:
     """
     Begins a timer that will end the round after the given number of seconds.
     At each second, broadcasts a message to each player to update them on the
     game state. When the timer ends, redistribute pot accordingly.
     """
+
     def __init__(self, timeout):
         self._timeout = timeout
         self._task = asyncio.ensure_future(self._job())
 
     async def _job(self):
-        while(self._timeout > 0):
+        while (self._timeout > 0):
             await asyncio.sleep(1)
             self._timeout -= 1
             all_player_data = [players[player_id].publicToDict()
@@ -125,7 +127,8 @@ def cancel_order(player_id, is_bid, suit):
     CANCEL ORDER:
     - update the order book with an empty bid/offer
     """
-    order_type, empty_order, prev_order = determine_order(player_id, is_bid, suit)
+    order_type, empty_order, prev_order = determine_order(
+        player_id, is_bid, suit)
 
     if prev_order.player_id == player_id:
         order_book[order_type][suit] = empty_order
@@ -157,12 +160,14 @@ def accept_order(accepter_id, is_bid, suit):
         seller.balance += order.price
         clear_book()
 
+
 def clear_book():
     """
     CLEAR BOOK:
     - clear the entire order book of bids/offers
     """
     order_book = EMPTY_ORDER_BOOK.copy()
+
 
 def determine_order(player_id, is_bid, suit):
     """
@@ -184,6 +189,7 @@ def determine_order(player_id, is_bid, suit):
     prev_order = order_book[order_type][suit]
 
     return [order_type, empty_order, prev_order]
+
 
 def order_book_to_dict(order_book):
     """
@@ -209,7 +215,7 @@ def deal_cards():
     Requires: 4 players already added to game
     shuffles deck and then distribute cards to each player
     """
-    deck = [] 
+    deck = []
     suits = SUITS.copy()
 
     # same color but not goal suit gets 12
@@ -221,7 +227,7 @@ def deal_cards():
         deck.extend([CLUBS] * 12)
     elif goal_suit == CLUBS:
         deck.extend([SPADES] * 12)
-    
+
     # goal suit gets 8 or 10
     num_of_goal_suit = random.choice([8, 10])
     deck.extend([goal_suit] * num_of_goal_suit)

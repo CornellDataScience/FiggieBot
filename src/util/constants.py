@@ -1,4 +1,4 @@
-from classes import Bid, Offer
+from .classes import Bid, Offer
 
 # Suits
 HEARTS = "hearts"
