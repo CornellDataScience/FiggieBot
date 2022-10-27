@@ -22,7 +22,7 @@ async def _place_order(ws, player_id, suit, price, is_bid):
     Place a bid or an offer with the given information.
     """
     place_json = {"type": "place_order", "data": {
-        "player_id": player_id, "is_bid": str(is_bid).lower(), "suit": suit, "price": price}}
+        "player_id": player_id, "is_bid": is_bid, "suit": suit, "price": price}}
     await ws.send(json.dumps(place_json))
 
 
