@@ -55,9 +55,9 @@ async def broadcast(json_message):
         await player.websocket.send_json(json_message)
 
 
-async def start_game():
+async def start_round():
     """
-    Starts the game timer and randomizes the cards for each player.
+    Starts the round timer and randomizes the cards for each player.
     """
     global goal_suit
 
@@ -74,8 +74,8 @@ async def start_game():
             player.balance -= 50
             pot += 50
 
-    await broadcast({"type": "start_game"})
-    print("Starting game...")
+    await broadcast({"type": "start_round"})
+    print("Starting round...")
 
 
 async def end_game():
@@ -161,7 +161,7 @@ def place_order(player_id, is_bid, suit, price):
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
-    
+
     action = " bids " if is_bid else " offers "
     print("Player " + player_id + action + str(price) + " for " + suit)
 
@@ -176,7 +176,7 @@ def cancel_order(player_id, is_bid, suit):
 
     if prev_order.player_id == player_id:
         order_book[order_type][suit] = empty_order
-    
+
     action = " bid " if is_bid else " offer "
     print("Player " + player_id + " canceled" + action + "for " + suit)
 
@@ -206,7 +206,8 @@ def accept_order(accepter_id, is_bid, suit):
         buyer.balance -= order.price
         seller.balance += order.price
         clear_book()
-        print("Player " + seller + " sold " + suit + " to Player" + buyer + " for " + order.price) 
+        print("Player " + seller + " sold " + suit +
+              " to Player" + buyer + " for " + order.price)
 
 
 def clear_book():
@@ -255,6 +256,7 @@ def order_book_to_dict(order_book):
             for suit in SUITS
         }
     }
+
 
 def get_book():
     """
