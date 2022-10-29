@@ -1,9 +1,13 @@
+# fmt: off
 import random
 import asyncio
-from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
-from classes import Player, Bid, Offer
-import json
+import sys
+sys.path.insert(0, "../")
+from util.constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
+from util.classes import Player, Bid, Offer
 import copy
+from database import write_games, write_orders, write_rounds
+# fmt: on
 
 players = {}  # map of (player_id, Player)
 round_number = 0
@@ -26,7 +30,7 @@ class Timer:
         self._task = asyncio.ensure_future(self._job())
 
     async def _job(self):
-        while(self._timeout > 0):
+        while (self._timeout > 0):
             await asyncio.sleep(1)
             self._timeout -= 1
             all_player_data = [players[player_id].publicToDict()
@@ -125,6 +129,8 @@ async def end_round():
     goal_suit = SUITS[random.randint(0, 3)]
     clear_book()
     await broadcast({"type": "end_round"})
+    round_number += 1
+    write_rounds(round_number, players)
 
 
 async def add_player(player_id, websocket):
@@ -156,8 +162,12 @@ async def place_order(player_id, is_bid, suit, price):
 
     if is_bid:
         new_order = Bid(next_order_id, player_id, suit, price)
+        write_orders(round_number, is_bid, suit, price,
+                     player_id, None, "place bid")
     else:
         new_order = Offer(next_order_id, player_id, suit, price)
+        write_orders(round_number, is_bid, suit,
+                     price, None, player_id, "offer")
 
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
@@ -181,7 +191,9 @@ async def cancel_order(player_id, is_bid, suit):
         order_book[order_type][suit] = empty_order
         action = " bid " if is_bid else " offer "
         await broadcast({"type": "cancel_order", "data": {"order_cancelled": order_cancelled}})
-        print("Player " + player_id + " canceled" + action + "for " + suit)
+        write_orders(round_number, is_bid, suit,
+                     None, None, player_id, "cancels")
+    print("Player " + player_id + " canceled" + action + "for " + suit)
     else:
         individual_order = " bid " if is_bid else " offer "
         await broadcast(
@@ -213,6 +225,8 @@ async def accept_order(accepter_id, is_bid, suit):
         seller.hand[suit] -= 1
         buyer.balance -= order.price
         seller.balance += order.price
+        write_orders(round_number, is_bid, suit,
+                     order.price, buyer, seller, "accepts")
         clear_book()
         await broadcast({"type": "cancel_order", "data": {"order_accepted": order}})
         print("Player " + seller + " sold " + suit +
