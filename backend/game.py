@@ -3,6 +3,7 @@ import asyncio
 from constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
 from classes import Player, Bid, Offer
 import json
+from database import write_games,write_orders,write_rounds
 import copy
 
 players = {}  # map of (player_id, Player)
@@ -40,7 +41,7 @@ class Timer:
                         "players": all_player_data,
                         "order_book": order_book_to_dict(order_book)
                     }
-                })
+                }) 
         await end_round()
 
     def cancel(self):
@@ -124,7 +125,8 @@ async def end_round():
     goal_suit = SUITS[random.randint(0, 3)]
     clear_book()
     await broadcast({"type": "end_round"})
-
+    round_number += 1
+    write_rounds(round_number,players)
 
 async def add_player(player_id, websocket):
     """
@@ -154,14 +156,15 @@ def place_order(player_id, is_bid, suit, price):
 
     if is_bid:
         new_order = Bid(next_order_id, player_id, suit, price)
+        write_orders(round_number,is_bid,suit,price,player_id,None,"place bid")
     else:
         new_order = Offer(next_order_id, player_id, suit, price)
+        write_orders(round_number,is_bid,suit,price,None,player_id,"offer")
 
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
-
     action = " bids " if is_bid else " offers "
     print("Player " + player_id + action + str(price) + " for " + suit)
 
@@ -178,6 +181,7 @@ def cancel_order(player_id, is_bid, suit):
         order_book[order_type][suit] = empty_order
 
     action = " bid " if is_bid else " offer "
+    write_orders(round_number,is_bid,suit,None,None,player_id,"cancels")
     print("Player " + player_id + " canceled" + action + "for " + suit)
 
 
@@ -205,6 +209,7 @@ def accept_order(accepter_id, is_bid, suit):
         seller.hand[suit] -= 1
         buyer.balance -= order.price
         seller.balance += order.price
+        write_orders(round_number,is_bid,suit,order.price,buyer,seller,"accepts")
         clear_book()
         print("Player " + seller + " sold " + suit +
               " to Player" + buyer + " for " + order.price)
