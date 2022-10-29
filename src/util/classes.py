@@ -1,6 +1,7 @@
 import json
-import constants
 import datetime
+from . import constants
+
 
 class Player:
     def __init__(self, player_id, websocket, balance):
@@ -21,6 +22,7 @@ class Player:
         }
         return dict
 
+
 class Bid:
     def __init__(self, order_id, player_id, suit, price):
         self.order_id = order_id
@@ -31,6 +33,7 @@ class Bid:
     def toDict(self):
         return self.__dict__
 
+
 class Offer:
     def __init__(self, order_id, player_id, suit, price):
         self.order_id = order_id
@@ -40,5 +43,6 @@ class Offer:
 
     def toDict(self):
         return self.__dict__
+
 
 print(datetime.datetime.now())
