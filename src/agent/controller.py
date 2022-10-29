@@ -49,13 +49,27 @@ async def place_offer(ws, player_id, suit, price):
     await _place_order(ws, player_id, suit, price, is_bid=False)
 
 
-async def accept_order(ws, player_id, suit):
+async def _accept_order(ws, player_id, suit, is_bid):
     """
     Accept an existing order with the given information.
     """
     accept_json = {"type": "accept_order", "data": {
-        "buyer_id": player_id, "seller_id": "TODO", "is_bid": "true", "suit": suit}}
+        "buyer_id": player_id, "seller_id": "TODO", "is_bid": is_bid, "suit": suit}}
     await ws.send(json.dumps(accept_json))
+
+
+async def accept_bid(ws, player_id, suit):
+    """
+    Accept an existing bid with the given information.
+    """
+    await _accept_order(ws, player_id, suit, is_bid=True)
+
+
+async def accept_offer(ws, player_id, suit):
+    """
+    Accept an existing offer with the given information.
+    """
+    await _accept_order(ws, player_id, suit, is_bid=False)
 
 
 def _parse_msg(msg_json):
