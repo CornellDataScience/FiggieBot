@@ -7,6 +7,7 @@ import copy
 
 players = {}  # map of (player_id, Player)
 round_number = 0
+game_number
 next_order_id = 0
 order_book = copy.deepcopy(EMPTY_ORDER_BOOK)
 goal_suit = SUITS[random.randint(0, 3)]
@@ -133,13 +134,14 @@ async def add_player(player_id, websocket):
     """
     if player_id in players:
         await websocket.send_json(
-            {"type": "error", "data": {"message": "Player already exists"}})
+            {"type": "error", "data": {"message": "Player already exists."}})
         return
     players[player_id] = Player(player_id, websocket, 350)
+    await broadcast({"type": "add_player", "data": {"player": player_id}})
     print("Adding player with id: " + player_id)
 
 
-def place_order(player_id, is_bid, suit, price):
+async def place_order(player_id, is_bid, suit, price):
     """
     PLACE ORDER:
     - if a player overrides a bid/offer (i.e. places a strictly higher bid or lower offer
@@ -161,12 +163,12 @@ def place_order(player_id, is_bid, suit, price):
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
+        action = " bids " if is_bid else " offers "
+        await broadcast({"type": "place_order", "data": {"new_order": new_order}})
+        print("Player " + player_id + action + str(price) + " for " + suit)
 
-    action = " bids " if is_bid else " offers "
-    print("Player " + player_id + action + str(price) + " for " + suit)
 
-
-def cancel_order(player_id, is_bid, suit):
+async def cancel_order(player_id, is_bid, suit):
     """
     CANCEL ORDER:
     - update the order book with an empty bid/offer
@@ -175,13 +177,19 @@ def cancel_order(player_id, is_bid, suit):
         player_id, is_bid, suit)
 
     if prev_order.player_id == player_id:
+        order_cancelled = order_book[order_type][suit]
         order_book[order_type][suit] = empty_order
+        action = " bid " if is_bid else " offer "
+        await broadcast({"type": "cancel_order", "data": {"order_cancelled": order_cancelled}})
+        print("Player " + player_id + " canceled" + action + "for " + suit)
+    else:
+        individual_order = " bid " if is_bid else " offer "
+        await broadcast(
+            {"type": "error", "data": {"message": "Player " + player_id + " cannot cancel " + individual_order + "."}})
+        return
 
-    action = " bid " if is_bid else " offer "
-    print("Player " + player_id + " canceled" + action + "for " + suit)
 
-
-def accept_order(accepter_id, is_bid, suit):
+async def accept_order(accepter_id, is_bid, suit):
     """
     ACCEPT ORDER:
     - check if an order can and should be accepted
@@ -206,6 +214,7 @@ def accept_order(accepter_id, is_bid, suit):
         buyer.balance -= order.price
         seller.balance += order.price
         clear_book()
+        await broadcast({"type": "cancel_order", "data": {"order_accepted": order}})
         print("Player " + seller + " sold " + suit +
               " to Player" + buyer + " for " + order.price)
 
