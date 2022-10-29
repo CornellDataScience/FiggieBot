@@ -1,8 +1,12 @@
+# fmt: off
 import asyncio
 import websockets
-from . import controller
+import controller
 import random
-from src.util import constants
+import sys
+sys.path.insert(0, "../")
+from util import constants
+# fmt: on
 
 '''
 A player that places random bids in the range [bid_low, bid_high], and random offers in the range [offer_low, offer_high]

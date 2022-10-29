@@ -1,8 +1,11 @@
+# fmt: off
 import random
 import asyncio
-from src.util.constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
-from src.util.classes import Player, Bid, Offer
-import json
+import sys
+sys.path.insert(0, "../")
+from util.constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
+from util.classes import Player, Bid, Offer
+# fmt: on
 
 players = {}  # map of (player_id, Player)
 round_number = 0
