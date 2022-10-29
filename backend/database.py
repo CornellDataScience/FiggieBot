@@ -50,10 +50,4 @@ def write_orders(round_id, is_bid, suit, price, buyer, seller, action):
         }
     )
     print("Successfully added the order to the database.")
-    
-x = {
-    "hello" : 1,
-    "hello2" : 2,
-}
-
-write_rounds(2,x)
+ 
