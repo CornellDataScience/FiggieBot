@@ -17,7 +17,7 @@ uri = "ws://127.0.0.1:8000/ws"
 
 class RandomPlayer:
     def __init__(self, bid_low, bid_high, offer_low, offer_high):
-        self.player_id = "Random Player" + str(random.random())
+        self.player_id = "Random Player"  # + str(random.random())
         self.bid_low = bid_low
         self.bid_high = bid_high
         self.offer_low = offer_low
@@ -35,7 +35,6 @@ class RandomPlayer:
                         suit=random.choice(constants.SUITS),
                         price=random.randint(self.bid_low, self.bid_high))
                 else:
-                    # TODO: Offer placement does not work - doesn't show up in order book
                     await controller.place_offer(
                         websocket,
                         self.player_id,
