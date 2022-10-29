@@ -5,13 +5,15 @@ import sys
 sys.path.insert(0, "../")
 from util.constants import SUITS, EMPTY_ORDER_BOOK, HEARTS, SPADES, CLUBS, DIAMONDS, EMPTY_BID, EMPTY_OFFER
 from util.classes import Player, Bid, Offer
+import copy
 # fmt: on
 
 players = {}  # map of (player_id, Player)
 round_number = 0
 next_order_id = 0
-order_book = EMPTY_ORDER_BOOK.copy()
+order_book = copy.deepcopy(EMPTY_ORDER_BOOK)
 goal_suit = SUITS[random.randint(0, 3)]
+pot = 0
 
 
 class Timer:
@@ -56,14 +58,27 @@ async def broadcast(json_message):
         await player.websocket.send_json(json_message)
 
 
-async def start_game():
+async def start_round():
     """
-    Starts the game timer and randomizes the cards for each player.
+    Starts the round timer and randomizes the cards for each player.
     """
+    global goal_suit
+
     goal_suit = SUITS[random.randint(0, 3)]
     deal_cards()
     Timer(240)
-    await broadcast({"type": "start_game"})
+    enough_money = True
+    for player in players.values():
+        if player.balance < 50:
+            enough_money = False
+
+    if enough_money:
+        for player in players.values():
+            player.balance -= 50
+            pot += 50
+
+    await broadcast({"type": "start_round"})
+    print("Starting round...")
 
 
 async def end_game():
@@ -73,6 +88,7 @@ async def end_game():
     """
     winner = max(players, key=lambda player_id: players[player_id].balance)
     await broadcast({"type": "end_game", "data": {"winner": winner}})
+    print("Ending game...")
 
 
 async def end_round():
@@ -81,9 +97,33 @@ async def end_round():
     on their number of cards of the goal suit. Then, resets the order book.
     Broadcasts a message to all players that the round has ended.
     """
+    global goal_suit
+    global round_number
+
     for player in players.values():
-        player.balance += player.hand[goal_suit] * 10
+        num_goal_suit = player.hand[goal_suit]
+        player.balance += num_goal_suit * 10
+        pot -= num_goal_suit * 10
+    round_winner = max(
+        players, key=lambda player_id: players[player_id].hand[goal_suit])
+    players[round_winner].balance += pot
     round_number += 1
+
+    max_goal_suits = 0
+    round_winners = []
+    for player in players.values():
+        num_goal_suit = player.hand[goal_suit]
+        if num_goal_suit > max_goal_suits:
+            max_goal_suits = num_goal_suit
+            round_winners = []
+            round_winners.append(player.player_id)
+        elif num_goal_suit == max_goal_suits:
+            round_winners.append(player.player_id)
+
+    for player_id in round_winners:
+        num_round_winners = len(round_winners)
+        players[player_id].balance += pot/num_round_winners
+
     goal_suit = SUITS[random.randint(0, 3)]
     clear_book()
     await broadcast({"type": "end_round"})
@@ -99,6 +139,7 @@ async def add_player(player_id, websocket):
             {"type": "error", "data": {"message": "Player already exists"}})
         return
     players[player_id] = Player(player_id, websocket, 350)
+    print("Adding player with id: " + player_id)
 
 
 def place_order(player_id, is_bid, suit, price):
@@ -112,6 +153,7 @@ def place_order(player_id, is_bid, suit, price):
     message and/or return void or just the current order book unchanged)
     """
     global next_order_id
+    global order_book
 
     if is_bid:
         new_order = Bid(next_order_id, player_id, suit, price)
@@ -119,10 +161,12 @@ def place_order(player_id, is_bid, suit, price):
         new_order = Offer(next_order_id, player_id, suit, price)
 
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
-
-    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and prev_order.price > price):
+    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
+
+    action = " bids " if is_bid else " offers "
+    print("Player " + player_id + action + str(price) + " for " + suit)
 
 
 def cancel_order(player_id, is_bid, suit):
@@ -135,6 +179,9 @@ def cancel_order(player_id, is_bid, suit):
 
     if prev_order.player_id == player_id:
         order_book[order_type][suit] = empty_order
+
+    action = " bid " if is_bid else " offer "
+    print("Player " + player_id + " canceled" + action + "for " + suit)
 
 
 def accept_order(accepter_id, is_bid, suit):
@@ -162,6 +209,8 @@ def accept_order(accepter_id, is_bid, suit):
         buyer.balance -= order.price
         seller.balance += order.price
         clear_book()
+        print("Player " + seller + " sold " + suit +
+              " to Player" + buyer + " for " + order.price)
 
 
 def clear_book():
@@ -169,7 +218,9 @@ def clear_book():
     CLEAR BOOK:
     - clear the entire order book of bids/offers
     """
-    order_book = EMPTY_ORDER_BOOK.copy()
+    global order_book
+
+    order_book = copy.deepcopy(EMPTY_ORDER_BOOK)
 
 
 def determine_order(player_id, is_bid, suit):
@@ -208,6 +259,15 @@ def order_book_to_dict(order_book):
             for suit in SUITS
         }
     }
+
+
+def get_book():
+    """
+    GET BOOK:
+    - return the entire order book of bids/offers
+    Used for test file.
+    """
+    return order_book
 
 
 def deal_cards():
