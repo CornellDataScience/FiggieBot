@@ -9,11 +9,11 @@ async def add_player(ws, player_id):
     await ws.send(json.dumps(add_json))
 
 
-async def start_game(ws):
+async def start_round(ws):
     """
-    Start the game.
+    Start the round.
     """
-    start_json = {"type": "start_game", "data": {}}
+    start_json = {"type": "start_round", "data": {}}
     await ws.send(json.dumps(start_json))
 
 

@@ -1,5 +1,4 @@
-from classes import Bid, Offer
-import sys
+from .classes import Bid, Offer
 
 # Suits
 HEARTS = "hearts"
@@ -15,7 +14,7 @@ EMPTY_OFFER = Offer(-1, "", "", -1)
 EMPTY_BIDS = {HEARTS: EMPTY_BID, DIAMONDS: EMPTY_BID,
               CLUBS: EMPTY_BID, SPADES: EMPTY_BID}
 EMPTY_OFFERS = {HEARTS: EMPTY_OFFER, DIAMONDS: EMPTY_OFFER,
-              CLUBS: EMPTY_OFFER, SPADES: EMPTY_OFFER}
+                CLUBS: EMPTY_OFFER, SPADES: EMPTY_OFFER}
 EMPTY_ORDER_BOOK = {"bids": EMPTY_BIDS, "offers": EMPTY_OFFERS}
 
 # Types
