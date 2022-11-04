@@ -170,12 +170,19 @@ async def place_order(player_id, is_bid, suit, price):
                      price, None, player_id, "offer")
 
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
+    action = "bid" if is_bid else "offer"
+    descriptor = "high" if is_bid else "low"
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
-        action = " bids " if is_bid else " offers "
-        await broadcast({"type": "place_order", "data": {"new_order": new_order}})
-        print("Player " + player_id + action + str(price) + " for " + suit)
+        await broadcast({"type": "place_order", "data": {"new_order": new_order, "message": "Player " + player_id + " " + order_type +
+                                                         " " + str(price) + " for " + str(suit)} + "."})
+        print("Player " + player_id + " " + order_type +
+              " " + str(price) + " for " + str(suit)+".")
+    else:
+        await websocket.send_json({"type": "error", "data": {"message": "Your " + action + " for " + str(suit) + " is not " + descriptor + " enough to update the order book."}})
+        print("Player " + player_id + " attempted to " +
+              action + ", but it did not update the order book.")
 
 
 async def cancel_order(player_id, is_bid, suit):
@@ -186,19 +193,21 @@ async def cancel_order(player_id, is_bid, suit):
     order_type, empty_order, prev_order = determine_order(
         player_id, is_bid, suit)
 
+    individual_order = " bid " if is_bid else " offer "
     if prev_order.player_id == player_id:
         order_cancelled = order_book[order_type][suit]
         order_book[order_type][suit] = empty_order
-        action = " bid " if is_bid else " offer "
-        await broadcast({"type": "cancel_order", "data": {"order_cancelled": order_cancelled}})
         write_orders(round_number, is_bid, suit,
                      None, None, player_id, "cancels")
-    print("Player " + player_id + " canceled" + action + "for " + suit)
+        await broadcast({"type": "cancel_order", "data": {"order_cancelled": order_cancelled, "message": "Player " + player_id + " canceled" +
+                                                          individual_order + "for " + str(suit) + "."}})
+        print("Player " + player_id + " canceled" +
+              individual_order + "for " + str(suit) + ".")
     else:
-        individual_order = " bid " if is_bid else " offer "
-        await broadcast(
-            {"type": "error", "data": {"message": "Player " + player_id + " cannot cancel " + individual_order + "."}})
-        return
+        await websocket.send_json(
+            {"type": "error", "data": {"message": "You cannot cancel this" + individual_order + "."}})
+        print("Player " + player_id + "attempted to cancel " + individual_order +
+              " but failed because it was not their order to begin with.")
 
 
 async def accept_order(accepter_id, is_bid, suit):
@@ -227,10 +236,12 @@ async def accept_order(accepter_id, is_bid, suit):
         seller.balance += order.price
         write_orders(round_number, is_bid, suit,
                      order.price, buyer, seller, "accepts")
-        clear_book()
-        await broadcast({"type": "cancel_order", "data": {"order_accepted": order}})
+        await broadcast({"type": "accept_order", "data": {"order_accepted": order}})
         print("Player " + seller + " sold " + suit +
-              " to Player" + buyer + " for " + order.price)
+              " to Player" + buyer + " for " + str(order.price))
+        clear_book()
+    else:
+        await acceptor_websocket.send_json({"type": "error", "data": {"message": "no"}})
 
 
 def clear_book():
