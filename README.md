@@ -10,6 +10,7 @@ Creating a game to play Figgie &amp; Train an agent to play against
 - Create virtual env called my_venv (only must do on first time setup): `python -m venv my_venv`
 - Activate virtual environment: `source ". my_venv/bin/activate"`
 - Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
+- Install pymongo (only must do on first time setup): `pip install pymongo"`
 - Start application: `uvicorn app:app --reload`
 - Websocket available at: ws://127.0.0.1:8000/ws
 
@@ -21,6 +22,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 - Create virtual env called my_venv (only must do on first time setup): `python -m venv my_venv`
 - Activate virtual environment `my_venv\Scripts\Activate.ps1`
 - Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
+- Install pymongo (only must do on first time setup): `pip install pymongo"`
 - Start application: `uvicorn app:app --reload`
 - Websocket available at: ws://127.0.0.1:8000/ws
 
@@ -53,27 +55,33 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
         "diamonds": 3,
         "clubs": 1,
         "spades": 3
-        }
-       },
-    "players": [
-      {"player_id": "Connor", "balance": 345},
-      {"player_id": "Pun", "balance": 355},
-      {"player_id": "Iram", "balance": 345},
-      {"player_id": "Eric", "balance": 355}
-      ],
-    "order_book": {
-      "bids": {"hearts": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "diamonds": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "clubs": {"order_id": 0, "player_id": "Connor", "suit": "clubs", "price": 5},
-      "spades": {"order_id": -1, "player_id": "", "suit": "", "price": 0}
-      },
-    "offers": {
-      "hearts": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "diamonds": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "clubs": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "spades": {"order_id": -1, "player_id": "", "suit": "", "price": 0}
       }
-     }
+    },
+    "players": [
+      { "player_id": "Connor", "balance": 345 },
+      { "player_id": "Pun", "balance": 355 },
+      { "player_id": "Iram", "balance": 345 },
+      { "player_id": "Eric", "balance": 355 }
+    ],
+    "order_book": {
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": {
+          "order_id": 0,
+          "player_id": "Connor",
+          "suit": "clubs",
+          "price": 5
+        },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
   }
 }
 ```

@@ -64,6 +64,7 @@ async def start_round():
     Starts the round timer and randomizes the cards for each player.
     """
     global goal_suit
+    global pot
 
     goal_suit = SUITS[random.randint(0, 3)]
     deal_cards()
@@ -100,6 +101,7 @@ async def end_round():
     """
     global goal_suit
     global round_number
+    global pot
 
     for player in players.values():
         num_goal_suit = player.hand[goal_suit]
@@ -107,29 +109,23 @@ async def end_round():
         pot -= num_goal_suit * 10
     round_winner = max(
         players, key=lambda player_id: players[player_id].hand[goal_suit])
-    players[round_winner].balance += pot
-    round_number += 1
+    max_goal_suits = players[round_winner].hand[goal_suit]
+    round_winners = [round_winner]
 
-    max_goal_suits = 0
-    round_winners = []
     for player in players.values():
-        num_goal_suit = player.hand[goal_suit]
-        if num_goal_suit > max_goal_suits:
-            max_goal_suits = num_goal_suit
-            round_winners = []
-            round_winners.append(player.player_id)
-        elif num_goal_suit == max_goal_suits:
+        if player.hand[goal_suit] == max_goal_suits and player.player_id != round_winner:
             round_winners.append(player.player_id)
 
+    num_round_winners = len(round_winners)
     for player_id in round_winners:
-        num_round_winners = len(round_winners)
         players[player_id].balance += pot/num_round_winners
 
     goal_suit = SUITS[random.randint(0, 3)]
+    pot = 0
     clear_book()
     await broadcast({"type": "end_round"})
-    round_number += 1
     write_rounds(round_number, players)
+    round_number += 1
 
 
 async def add_player(player_id, websocket):
@@ -216,10 +212,10 @@ def accept_order(accepter_id, is_bid, suit):
         buyer.balance -= order.price
         seller.balance += order.price
         write_orders(round_number, is_bid, suit,
-                     order.price, buyer, seller, "accepts")
+                     order.price, buyer.player_id, seller.player_id, "accepts")
         clear_book()
-        print("Player " + seller + " sold " + suit +
-              " to Player" + buyer + " for " + order.price)
+        print("Player " + seller.player_id + " sold " + suit +
+              " to Player" + buyer.player_id + " for " + str(order.price))
 
 
 def clear_book():
