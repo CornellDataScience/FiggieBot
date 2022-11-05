@@ -39,6 +39,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 
 ### Output
 
+- Accept Order (Success): `{"type": "accept_order", "data": {"buyer_id": "Pun", "seller_id": "Connor", "price": 5, "is_bid": true, "suit": "clubs"}}`
 - Game State (broadcasted every second during round):
 
 ```json
