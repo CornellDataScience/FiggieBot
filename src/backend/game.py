@@ -159,6 +159,7 @@ async def place_order(player_id, is_bid, suit, price):
     """
     global next_order_id
     global order_book
+    websocket = players[player_id]
 
     if is_bid:
         new_order = Bid(next_order_id, player_id, suit, price)
@@ -175,7 +176,7 @@ async def place_order(player_id, is_bid, suit, price):
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
-        await broadcast({"type": "place_order", "data": {"new_order": new_order, "message": "Player " + player_id + " " + order_type +
+        await broadcast({"type": "place_order", "data": {"new_order": general_order_to_dict(new_order, is_bid), "message": "Player " + player_id + " " + order_type +
                                                          " " + str(price) + " for " + str(suit)} + "."})
         print("Player " + player_id + " " + order_type +
               " " + str(price) + " for " + str(suit)+".")
@@ -192,14 +193,15 @@ async def cancel_order(player_id, is_bid, suit):
     """
     order_type, empty_order, prev_order = determine_order(
         player_id, is_bid, suit)
+    websocket = players[player_id]
 
     individual_order = " bid " if is_bid else " offer "
     if prev_order.player_id == player_id:
-        order_cancelled = order_book[order_type][suit]
+        order_canceled = order_book[order_type][suit]
         order_book[order_type][suit] = empty_order
         write_orders(round_number, is_bid, suit,
                      None, None, player_id, "cancels")
-        await broadcast({"type": "cancel_order", "data": {"order_cancelled": order_cancelled, "message": "Player " + player_id + " canceled" +
+        await broadcast({"type": "cancel_order", "data": {"order_canceled": general_order_to_dict(order_canceled, is_bid), "message": "Player " + player_id + " canceled" +
                                                           individual_order + "for " + str(suit) + "."}})
         print("Player " + player_id + " canceled" +
               individual_order + "for " + str(suit) + ".")
@@ -210,7 +212,7 @@ async def cancel_order(player_id, is_bid, suit):
               " but failed because it was not their order to begin with.")
 
 
-async def accept_order(accepter_id, is_bid, suit):
+async def accept_order(acceptor_id, is_bid, suit):
     """
     ACCEPT ORDER:
     - check if an order can and should be accepted
@@ -218,15 +220,16 @@ async def accept_order(accepter_id, is_bid, suit):
     - update the money and hand (i.e. count, kind) of cards for the two players involved
     """
     order = order_book["bids" if is_bid else "offers"][suit]
+    websocket = players[acceptor_id]
 
-    if order.player_id == accepter_id:
+    if order.player_id == acceptor_id:
         return
 
     if is_bid:
         buyer = players[order.player_id]
-        seller = players[accepter_id]
+        seller = players[acceptor_id]
     else:
-        buyer = players[accepter_id]
+        buyer = players[acceptor_id]
         seller = players[order.player_id]
 
     if (seller.hand[suit] > 0) and (buyer.balance >= order.price):
@@ -236,12 +239,12 @@ async def accept_order(accepter_id, is_bid, suit):
         seller.balance += order.price
         write_orders(round_number, is_bid, suit,
                      order.price, buyer, seller, "accepts")
-        await broadcast({"type": "accept_order", "data": {"order_accepted": order}})
+        await broadcast({"type": "accept_order", "data": accepted_order_to_dict(buyer.player_id, seller.player_id, order, is_bid)})
         print("Player " + seller + " sold " + suit +
               " to Player" + buyer + " for " + str(order.price))
         clear_book()
     else:
-        await acceptor_websocket.send_json({"type": "error", "data": {"message": "no"}})
+        await websocket.send_json({"type": "error", "data": {"message": "Order could not be fulfilled."}})
 
 
 def clear_book():
@@ -289,6 +292,31 @@ def order_book_to_dict(order_book):
             suit: order_book["offers"][suit].toDict()
             for suit in SUITS
         }
+    }
+
+
+def accepted_order_to_dict(buyer_id, seller_id, order, is_bid):
+    """
+    Converts an order that is accepted to a dictionary.
+    """
+    return {
+        "buyer_id": buyer_id,
+        "seller_id": seller_id,
+        "price": order.price,
+        "is_bid": is_bid,
+        "suit": order.suit
+    }
+
+
+def general_order_to_dict(order, is_bid):
+    """
+    Converts a general order to a dictionary.
+    """
+    return {
+        "player_id": order.player_id,
+        "price": order.price,
+        "is_bid": is_bid,
+        "suit": order.suit
     }
 
 
