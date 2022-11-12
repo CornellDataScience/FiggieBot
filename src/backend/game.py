@@ -172,12 +172,26 @@ async def place_order(player_id, is_bid, suit, price):
     if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
-        await broadcast({"type": "place_order", "data": {"new_order": general_order_to_dict(new_order, is_bid), "message": "Player " + player_id + " " + order_type +
-                                                         " " + str(price) + " for " + str(suit)} + "."})
+        await broadcast({
+            "type": "place_order",
+            "data": {
+                "new_order": general_order_to_dict(new_order, is_bid),
+                "message": "Player " + player_id + " " + order_type +
+                " " + str(price) + " for " + str(suit) + ".",
+                "order_book": order_book_to_dict(order_book)
+            }
+        })
         print("Player " + player_id + " " + order_type +
               " " + str(price) + " for " + str(suit)+".")
     else:
-        await websocket.send_json({"type": "error", "data": {"message": "Your " + action + " for " + str(suit) + " is not " + descriptor + " enough to update the order book."}})
+        await websocket.send_json({
+            "type": "error",
+            "data": {
+                "message": "Your " + action + " for " + str(suit) + " is not " +
+                descriptor + " enough to update the order book.",
+                "order_book": order_book_to_dict(order_book)
+            }
+        })
         print("Player " + player_id + " attempted to " +
               action + ", but it did not update the order book.")
 
@@ -197,13 +211,25 @@ async def cancel_order(player_id, is_bid, suit):
         order_book[order_type][suit] = empty_order
         write_orders(round_number, is_bid, suit,
                      None, None, player_id, "cancels")
-        await broadcast({"type": "cancel_order", "data": {"order_canceled": general_order_to_dict(order_canceled, is_bid), "message": "Player " + player_id + " canceled" +
-                                                          individual_order + "for " + str(suit) + "."}})
+        await broadcast({
+            "type": "cancel_order",
+            "data": {
+                    "order_canceled": general_order_to_dict(order_canceled, is_bid),
+                    "message": "Player " + player_id + " canceled" +
+                    individual_order + "for " + str(suit) + ".",
+                    "order_book": order_book_to_dict(order_book)
+            }
+        })
         print("Player " + player_id + " canceled" +
               individual_order + "for " + str(suit) + ".")
     else:
-        await websocket.send_json(
-            {"type": "error", "data": {"message": "You cannot cancel this" + individual_order + "."}})
+        await websocket.send_json({
+            "type": "error",
+            "data": {
+                    "message": "You cannot cancel this" + individual_order + ".",
+                    "order_book": order_book_to_dict(order_book)
+            }
+        })
         print("Player " + player_id + "attempted to cancel " + individual_order +
               " but failed because it was not their order to begin with.")
 
@@ -236,13 +262,26 @@ async def accept_order(acceptor_id, is_bid, suit):
         write_orders(round_number, is_bid, suit,
 
                      order.price, buyer, seller, "accepts")
-        await broadcast({"type": "accept_order", "data": accepted_order_to_dict(buyer.player_id, seller.player_id, order, is_bid)})
+        accepted_order_dict = accepted_order_to_dict(
+            buyer.player_id, seller.player_id, order, is_bid)
+        clear_book()
+        await broadcast({
+            "type": "accept_order",
+            "data": {
+                "accepted_order": accepted_order_dict,
+                "order_book": order_book_to_dict(order_book)
+            }
+        })
         print("Player " + seller + " sold " + suit +
               " to Player" + buyer + " for " + str(order.price))
-        clear_book()
     else:
-        await websocket.send_json({"type": "error", "data": {"message": "Order could not be fulfilled."}})
-
+        await websocket.send_json({
+            "type": "error",
+            "data": {
+                "message": "Order could not be fulfilled.",
+                "order_book": order_book_to_dict(order_book)
+            }
+        })
 
 
 def clear_book():
