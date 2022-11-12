@@ -10,6 +10,7 @@ from database import write_games, write_orders, write_rounds
 # fmt: on
 
 players = {}  # map of (player_id, Player)
+game_id = 0
 round_number = 0
 game_number
 next_order_id = 0
@@ -59,6 +60,15 @@ async def broadcast(json_message):
     for player in players.values():
         await player.websocket.send_json(json_message)
 
+async def start_game(player_id):
+    """
+    Checks that all four players are ready. If ready --> starts the round
+    """
+    players[player_id].ready = True
+    for player in players:
+        if players[player].ready == False:
+            return
+    start_round()
 
 async def start_round():
     """
@@ -89,10 +99,15 @@ async def end_game():
     Function to call when game ends. Calculates winner based on balances
     and broadcasts to all players who the winner is.
     """
+    global round_number
+    global game_id
     winner = max(players, key=lambda player_id: players[player_id].balance)
+    write_games(game_id,players,round_number)
+    round_number = 0
+    game_id += 1
     await broadcast({"type": "end_game", "data": {"winner": winner}})
     print("Ending game...")
-
+    
 
 async def end_round():
     """
@@ -125,8 +140,9 @@ async def end_round():
     pot = 0
     clear_book()
     await broadcast({"type": "end_round"})
-    write_rounds(round_number, players)
+    write_rounds(game_id,round_number,players)
     round_number += 1
+
 
 
 async def add_player(player_id, websocket):
@@ -159,12 +175,12 @@ async def place_order(player_id, is_bid, suit, price):
 
     if is_bid:
         new_order = Bid(next_order_id, player_id, suit, price)
-        write_orders(round_number, is_bid, suit, price,
-                     player_id, None, "place bid")
+
+        write_orders(game_id,round_number,is_bid,suit,price,player_id,None,"place bid")
     else:
         new_order = Offer(next_order_id, player_id, suit, price)
-        write_orders(round_number, is_bid, suit,
-                     price, None, player_id, "offer")
+        write_orders(game_id,round_number,is_bid,suit,price,None,player_id,"offer")
+    
 
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
     action = "bid" if is_bid else "offer"
@@ -195,8 +211,7 @@ async def cancel_order(player_id, is_bid, suit):
     if prev_order.player_id == player_id:
         order_canceled = order_book[order_type][suit]
         order_book[order_type][suit] = empty_order
-        write_orders(round_number, is_bid, suit,
-                     None, None, player_id, "cancels")
+        write_orders(game_id,round_number,is_bid,suit,None,None,player_id,"cancels")
         await broadcast({"type": "cancel_order", "data": {"order_canceled": general_order_to_dict(order_canceled, is_bid), "message": "Player " + player_id + " canceled" +
                                                           individual_order + "for " + str(suit) + "."}})
         print("Player " + player_id + " canceled" +
@@ -233,9 +248,7 @@ async def accept_order(acceptor_id, is_bid, suit):
         seller.hand[suit] -= 1
         buyer.balance -= order.price
         seller.balance += order.price
-        write_orders(round_number, is_bid, suit,
-
-                     order.price, buyer, seller, "accepts")
+        write_orders(game_id,round_number,is_bid,suit,order.price,buyer,seller,"accepts")
         await broadcast({"type": "accept_order", "data": accepted_order_to_dict(buyer.player_id, seller.player_id, order, is_bid)})
         print("Player " + seller + " sold " + suit +
               " to Player" + buyer + " for " + str(order.price))

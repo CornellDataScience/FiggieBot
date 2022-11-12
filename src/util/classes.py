@@ -2,7 +2,6 @@ import json
 import datetime
 from . import constants
 
-
 class Player:
     def __init__(self, player_id, websocket, balance):
         self.player_id = player_id
@@ -43,6 +42,3 @@ class Offer:
 
     def toDict(self):
         return self.__dict__
-
-
-print(datetime.datetime.now())
