@@ -1,70 +1,84 @@
-# Getting Started with Create React App
+# FiggieBot
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Creating a game to play Figgie &amp; Train an agent to play against
 
-## Available Scripts
+## How to Run the Backend Locally
 
-In the project directory, you can run:
+### Mac
 
-### `npm start`
+- Enter backend folder: `cd backend`
+- Create virtual env called my_venv (only must do on first time setup): `python -m venv my_venv`
+- Activate virtual environment: `source ". my_venv/bin/activate"`
+- Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
+- Start application: `uvicorn app:app --reload`
+- Websocket available at: ws://127.0.0.1:8000/ws
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Windows Powershell
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running scripts for the current PowerShell session) or `Set-ExecutionPolicy Unrestricted -Force` (less safe) if execution policy is restricted.
 
-### `npm test`
+- Enter backend folder: `cd backend`
+- Create virtual env called my_venv (only must do on first time setup): `python -m venv my_venv`
+- Activate virtual environment `my_venv\Scripts\Activate.ps1`
+- Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
+- Start application: `uvicorn app:app --reload`
+- Websocket available at: ws://127.0.0.1:8000/ws
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Backend WebSocket Inputs/Outputs Examples
 
-### `npm run build`
+### Inputs
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Add players: `{"type": "add_player", "data": {"player_id": "Connor"}}`
+- Start Game: `{"type": "start_game", "data": {}}`
+- End Game: `{"type": "end_game", "data": {}}`
+- Place Order: `{"type": "place_order", "data": {"player_id": "Connor", "is_bid": true, "suit": "clubs", "price": 5}}`
+- Cancel Order: `{"type": "cancel_order", "data": {"player_id": "Connor", "is_bid": true, "suit": "clubs"}}`
+- Accept Order: `{"type": "accept_order", "data": {"accepter_id": "Pun", "is_bid": true, "suit": "clubs"}}`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Output
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Game State (broadcasted every second during round):
 
-### `npm run eject`
+```json
+{
+  "type": "update_game",
+  "data": {
+    "round_number": 0,
+    "time": 181,
+    "player": {
+      "player_id": "Pun",
+      "balance": 355,
+      "hand": {
+        "hearts": 2,
+        "diamonds": 3,
+        "clubs": 1,
+        "spades": 3
+        }
+       },
+    "players": [
+      {"player_id": "Connor", "balance": 345},
+      {"player_id": "Pun", "balance": 355},
+      {"player_id": "Iram", "balance": 345},
+      {"player_id": "Eric", "balance": 355}
+      ],
+    "order_book": {
+      "bids": {"hearts": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
+      "diamonds": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
+      "clubs": {"order_id": 0, "player_id": "Connor", "suit": "clubs", "price": 5},
+      "spades": {"order_id": -1, "player_id": "", "suit": "", "price": 0}
+      },
+    "offers": {
+      "hearts": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
+      "diamonds": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
+      "clubs": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
+      "spades": {"order_id": -1, "player_id": "", "suit": "", "price": 0}
+      }
+     }
+  }
+}
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## How to Run Tests
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Enter backend folder: `cd backend`
+- Run test file: `python test.py`
