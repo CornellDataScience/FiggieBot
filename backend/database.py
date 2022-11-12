@@ -13,7 +13,6 @@ def write_games(game_id,players,rounds):
     """
     player_array = [str(player) for player in players]
     db_games.insert_one({
-        #need to figure out what to do with the game rounds aka game id
         "game_id" : game_id,
         "players" : player_array,
         "number_of_rounds": rounds
@@ -23,12 +22,10 @@ def write_games(game_id,players,rounds):
 def write_rounds(game_id, round_id,players):
     """Add a round to rounds database with starting balances?
     """
-    #need to somehow get games id from database and add it to the order database
     balance = {} 
     for player in players:
         balance[player] = player.balance
     db_rounds.insert_one({
-        #need to figure out what to do with the game rounds aka game id
         "game_id" : game_id,
         "round_id" : round_id,
         "players": balance
@@ -40,7 +37,6 @@ def write_orders(game_id, round_id, is_bid, suit, price, buyer, seller, action):
     """
     db_orders.insert_one(
         {
-            #need to figure out what to do with the game rounds aka game id
             "game_id" : game_id,
             "round_id" : round_id,
             "timestamp" : datetime.now(),
@@ -53,5 +49,3 @@ def write_orders(game_id, round_id, is_bid, suit, price, buyer, seller, action):
         }
     )
     print("Successfully added the order to the database.")
-
-write_orders(1,1,1,1,1,1,1)
