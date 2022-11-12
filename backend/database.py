@@ -52,3 +52,5 @@ def write_orders(round_id, is_bid, suit, price, buyer, seller, action):
         }
     )
     print("Successfully added the order to the database.")
+
+write_orders(1,1,1,1,1,1,1)
