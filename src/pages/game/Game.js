@@ -1,9 +1,23 @@
 import React from 'react'
 import './Game.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // import Txtandbutton from '../../components/Txtandbutton'
 
-function Game() {
+function Game(client) {
+    useEffect(() => {
+        client.onopen = () => console.log('ws opened');
+        client.onclose = () => console.log('ws closed');
+
+        client.onmessage = e => {
+            const message = JSON.parse(e.data);
+            console.log('e', message);
+        };
+
+        return () => {
+            client.close();
+        }
+    }, [client]);
+
     const [orderBook, setOrderBook] = useState({
         bids: { spades: 0, hearts: 0, diamonds: 0, clubs: 0 },
         offers: { spades: 0, hearts: 0, diamonds: 0, clubs: 0 }
@@ -17,6 +31,8 @@ function Game() {
     const [diamondOffer, setDiamondOffer] = useState(0)
     const [clubBid, setClubBid] = useState(0)
     const [clubOffer, setClubOffer] = useState(0)
+
+    // const placeOrder
 
     const handleClickSB = (e) => {
         e.preventDefault()
