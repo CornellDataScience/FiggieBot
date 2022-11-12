@@ -41,8 +41,8 @@ class RandomPlayer:
                         suit=random.choice(constants.SUITS),
                         price=random.randint(self.offer_low, self.offer_high))
                 await asyncio.sleep(1)
-                # game_state = await controller.get_game_update(websocket) # TODO: Change this to asynchronous
-                # print(game_state)
+                game_state = await controller.get_game_update(websocket)
+                print(game_state)
 
 
 random_player = RandomPlayer(
