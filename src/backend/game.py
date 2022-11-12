@@ -12,7 +12,7 @@ from database import write_games, write_orders, write_rounds
 players = {}  # map of (player_id, Player)
 game_id = 0
 round_number = 0
-game_number
+game_number = 0
 next_order_id = 0
 order_book = copy.deepcopy(EMPTY_ORDER_BOOK)
 goal_suit = SUITS[random.randint(0, 3)]
