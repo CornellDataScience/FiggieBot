@@ -8,14 +8,15 @@ db_games = db.get_collection('Games')
 db_rounds = db.get_collection('Rounds')
 db_orders = db.get_collection('Orders')
 
-def write_games(game_id,players):
+def write_games(game_id,players,rounds):
     """Add a game to games database once a game is started, perhaps write final balances of players at end game?
     """
     player_array = [str(player) for player in players]
     db_games.insert_one({
         #need to figure out what to do with the game rounds aka game id
         "game_id" : game_id,
-        "players" : player_array
+        "players" : player_array,
+        "number_of_rounds": rounds
     })
     print("Successfully added the game to the database.")
 
