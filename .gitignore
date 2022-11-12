@@ -1,4 +1,7 @@
-backend/my_venv
-backend/__pycache__
-agent/__pycache__
+src/backend/my_venv
+src/backend/__pycache__
+src/agent/__pycache__
+src/util/__pycache__
 .DS_Store
+src/my_venv
+src/__pycache__

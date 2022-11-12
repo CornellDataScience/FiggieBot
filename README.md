@@ -10,6 +10,7 @@ Creating a game to play Figgie &amp; Train an agent to play against
 - Create virtual env called my_venv (only must do on first time setup): `python -m venv my_venv`
 - Activate virtual environment: `source ". my_venv/bin/activate"`
 - Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
+- Install pymongo (only must do on first time setup): `pip install pymongo"`
 - Start application: `uvicorn app:app --reload`
 - Websocket available at: ws://127.0.0.1:8000/ws
 
@@ -21,6 +22,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 - Create virtual env called my_venv (only must do on first time setup): `python -m venv my_venv`
 - Activate virtual environment `my_venv\Scripts\Activate.ps1`
 - Install fastapi (only must do on first time setup): `pip install fastapi "uvicorn[standard]"`
+- Install pymongo (only must do on first time setup): `pip install pymongo"`
 - Start application: `uvicorn app:app --reload`
 - Websocket available at: ws://127.0.0.1:8000/ws
 
@@ -37,6 +39,15 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 
 ### Output
 
+- Place Order: 
+  -  If successful: `{"type": "new_order", "data": {"new_order": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric offers 5 for diamonds."}`
+  -  If not: `{"type": "error", "data": {"message": "Your offer for diamonds is not low enough to update the order book."}`
+- Cancel Order:
+  -  If successful: `{"type": "cancel_order", "data": {"order_canceled": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric canceled offer for diamonds."}`
+  -  If not: `{"type": "error", "data": {"message": "You cannot cancel this offer."}`
+- Accept Order: 
+  - If successful: `{"type": "accept_order", "data": {"buyer_id": "Pun", "seller_id": "Connor", "price": 5, "is_bid": true, "suit": "clubs"}}`
+  - If not: `{"type": "error", "data": {"message": ""Order could not be fulfilled."}`
 - Game State (broadcasted every second during round):
 
 ```json
@@ -53,27 +64,33 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
         "diamonds": 3,
         "clubs": 1,
         "spades": 3
-        }
-       },
-    "players": [
-      {"player_id": "Connor", "balance": 345},
-      {"player_id": "Pun", "balance": 355},
-      {"player_id": "Iram", "balance": 345},
-      {"player_id": "Eric", "balance": 355}
-      ],
-    "order_book": {
-      "bids": {"hearts": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "diamonds": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "clubs": {"order_id": 0, "player_id": "Connor", "suit": "clubs", "price": 5},
-      "spades": {"order_id": -1, "player_id": "", "suit": "", "price": 0}
-      },
-    "offers": {
-      "hearts": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "diamonds": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "clubs": {"order_id": -1, "player_id": "", "suit": "", "price": 0},
-      "spades": {"order_id": -1, "player_id": "", "suit": "", "price": 0}
       }
-     }
+    },
+    "players": [
+      { "player_id": "Connor", "balance": 345 },
+      { "player_id": "Pun", "balance": 355 },
+      { "player_id": "Iram", "balance": 345 },
+      { "player_id": "Eric", "balance": 355 }
+    ],
+    "order_book": {
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": {
+          "order_id": 0,
+          "player_id": "Connor",
+          "suit": "clubs",
+          "price": 5
+        },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
   }
 }
 ```
