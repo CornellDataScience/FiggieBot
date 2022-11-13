@@ -51,8 +51,8 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       "is_bid": false, 
       "suit": "diamonds"
      }, 
-     "message": "Player Eric offers 5 for diamonds.",
-     "order_book":{
+   "message": "Player Eric offers 5 for diamonds.",
+   "order_book":{
       "bids": {
         "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
         "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
