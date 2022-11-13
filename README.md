@@ -41,7 +41,8 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 
 - Place Order: 
   -  If successful: order is added to the order book; broadcast to everyone
-`{
+```
+{
   "type": "new_order", 
   "data": {
     "new_order": {
@@ -71,9 +72,11 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       }
     }
   }
-}`
+}
+```
   -  If not: order book is not changed; broadcast to specific player
-`{
+```json
+{
   "type": "error", 
   "data": {
     "message": "Your offer for diamonds is not low enough to update the order book.",
@@ -92,10 +95,12 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       }
     }
   }
-}`
+}
+```
 - Cancel Order:
   -  If successful: order is removed from order book; broadcast to every player
-`{
+```json
+{
   "type": "cancel_order", 
   "data": {
     "order_canceled": {
@@ -120,9 +125,11 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       }
     }
   }
-}`
+}
+```
   -  If not: order remains in the order book; broadcast to specific player
-`{
+```json
+{
   "type": "error", 
   "data": {
     "message": "You cannot cancel this offer."
@@ -146,10 +153,12 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       }
     }
   }
-}`
+}
+```
 - Accept Order: 
   -  If successful: order book is empty; broadcast to every player
-`{
+```json
+{
   "type": "accept_order", 
   "data": {
     "accepted_order": {
@@ -175,9 +184,11 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       }
     }
   }
-}`
+}
+```
   -  If not: both orders remain in the order book; broadcast to specific player
-`{
+```json
+{
   "type": "error", 
   "data": {
     "message": "Order could not be fulfilled.",
@@ -206,7 +217,8 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       }
     }
   }
-}`
+}
+```
 - Game State (broadcasted every second during round):
 
 ```json
