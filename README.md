@@ -40,7 +40,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 ### Output
 
 - Place Order: 
-  -  If successful: order is added to the order book; broadcast to everyone
+  1.  If successful: order is added to the order book; broadcast to everyone
 ```json
 {
   "type": "new_order", 
@@ -74,7 +74,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
   }
 }
 ```
-  -  If not: order book is not changed; broadcast to specific player
+  2.  If not: order book is not changed; broadcast to specific player
 ```json
 {
   "type": "error", 
@@ -98,7 +98,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 }
 ```
 - Cancel Order:
-  -  If successful: order is removed from order book; broadcast to every player
+  1.  If successful: order is removed from order book; broadcast to every player
 ```json
 {
   "type": "cancel_order", 
@@ -127,7 +127,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
   }
 }
 ```
-  -  If not: order remains in the order book; broadcast to specific player
+  2.  If not: order remains in the order book; broadcast to specific player
 ```json
 {
   "type": "error", 
@@ -156,7 +156,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 }
 ```
 - Accept Order: 
-  -  If successful: order book is empty; broadcast to every player
+  1.  If successful: order book is empty; broadcast to every player
 ```json
 {
   "type": "accept_order", 
@@ -186,7 +186,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
   }
 }
 ```
-  -  If not: both orders remain in the order book; broadcast to specific player
+   2. If not: both orders remain in the order book; broadcast to specific player
 ```json
 {
   "type": "error", 
