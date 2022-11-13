@@ -41,7 +41,7 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 
 - Place Order: 
   -  If successful: order is added to the order book; broadcast to everyone
-```
+```json
 {
   "type": "new_order", 
   "data": {
@@ -51,8 +51,8 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
       "is_bid": false, 
       "suit": "diamonds"
      }, 
-   "message": "Player Eric offers 5 for diamonds.",
-   "order_book":{
+     "message": "Player Eric offers 5 for diamonds.",
+     "order_book":{
       "bids": {
         "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
         "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
