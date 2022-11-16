@@ -3,7 +3,7 @@ import './Game.css'
 import { useState, useEffect } from 'react'
 // import Txtandbutton from '../../components/Txtandbutton'
 
-function Game(client) {
+function Game({ client }) {
     useEffect(() => {
         client.onopen = () => console.log('ws opened');
         client.onclose = () => console.log('ws closed');
