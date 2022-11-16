@@ -14,7 +14,9 @@ function Game({ client }) {
         };
 
         return () => {
-            client.close();
+            if (client.readyState === 1) {
+                client.close();
+            }
         }
     }, [client]);
 
@@ -22,6 +24,43 @@ function Game({ client }) {
         bids: { spades: 0, hearts: 0, diamonds: 0, clubs: 0 },
         offers: { spades: 0, hearts: 0, diamonds: 0, clubs: 0 }
     })
+
+    const [gameState, setGameState] = useState({
+        round_number: 0,
+        time: 0,
+        player: {
+            player_id: "",
+            balance: 0,
+            hand: {
+                hearts: 0,
+                diamonds: 0,
+                clubs: 0,
+                spades: 0
+            }
+        },
+        players: [
+            { player_id: "", balance: 0 },
+            { player_id: "", balance: 0 },
+            { player_id: "", balance: 0 },
+            { player_id: "", balance: 0 }
+        ],
+        order_book: {
+            bids: {
+                hearts: { order_id: -1, player_id: "", suit: "", price: 0 },
+                diamonds: { order_id: -1, player_id: "", suit: "", price: 0 },
+                clubs: { order_id: -1, player_id: "", suit: "", price: 0 },
+                spades: { order_id: -1, player_id: "", suit: "", price: 0 }
+            },
+            offers: {
+                hearts: { order_id: -1, player_id: "", suit: "", price: 0 },
+                diamonds: { order_id: -1, player_id: "", suit: "", price: 0 },
+                clubs: { order_id: -1, player_id: "", suit: "", price: 0 },
+                spades: { order_id: -1, player_id: "", suit: "", price: 0 }
+            }
+        }
+    })
+
+    const [orderId, setOrderId] = useState(0)
 
     const [spadeBid, setSpadeBid] = useState(0)
     const [spadeOffer, setSpadeOffer] = useState(0)
@@ -36,13 +75,18 @@ function Game({ client }) {
 
     const handleClickSB = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.bids.spades = spadeBid
         setOrderBook(copy)
+        const newSpade = { order_id: orderId, player_id: "", suit: "", "price": copy.bids.spades }
+
+        client.send(JSON.stringify(copy))
     }
 
     const handleClickSO = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.offers.spades = spadeOffer
         setOrderBook(copy)
@@ -50,6 +94,7 @@ function Game({ client }) {
 
     const handleClickHB = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.bids.hearts = heartBid
         setOrderBook(copy)
@@ -57,6 +102,7 @@ function Game({ client }) {
 
     const handleClickHO = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.offers.hearts = heartOffer
         setOrderBook(copy)
@@ -64,6 +110,7 @@ function Game({ client }) {
 
     const handleClickDB = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.bids.diamonds = diamondBid
         setOrderBook(copy)
@@ -71,6 +118,7 @@ function Game({ client }) {
 
     const handleClickDO = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.offers.diamonds = diamondOffer
         setOrderBook(copy)
@@ -78,6 +126,7 @@ function Game({ client }) {
 
     const handleClickCB = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.bids.clubs = clubBid
         setOrderBook(copy)
@@ -85,6 +134,7 @@ function Game({ client }) {
 
     const handleClickCO = (e) => {
         e.preventDefault()
+        setOrderId(orderId + 1)
         const copy = { ...orderBook }
         copy.offers.clubs = clubOffer
         setOrderBook(copy)
