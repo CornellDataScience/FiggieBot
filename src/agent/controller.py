@@ -86,16 +86,9 @@ async def accept_offer(ws, player_id, suit):
     await _accept_order(ws, player_id, suit, is_bid=False)
 
 
-def _parse_msg(msg_json):
-    """
-    Parse the message received from the game engine.
-    """
-    return json.loads(msg_json)  # TODO: Implement
-
-
-async def get_game_update(ws):
+async def get_game_update(ws) -> dict:
     """
     Get updates from the game engine about the game state.
     """
     msg_json = await ws.recv()
-    return _parse_msg(msg_json)
+    return json.loads(msg_json)

@@ -141,7 +141,7 @@ Cancel Order:
 {
   "type": "error", 
   "data": {
-    "message": "You cannot cancel this offer."
+    "message": "You cannot cancel this offer.",
     "order_book": {
       "bids": {
         "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
