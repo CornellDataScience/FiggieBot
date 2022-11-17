@@ -39,13 +39,13 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 
 ### Output
 
-- Place Order: 
-  -  If successful: `{"type": "new_order", "data": {"new_order": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric offers 5 for diamonds."}`
-  -  If not: `{"type": "error", "data": {"message": "Your offer for diamonds is not low enough to update the order book."}`
+- Place Order:
+  - If successful: `{"type": "new_order", "data": {"new_order": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric offers 5 for diamonds."}`
+  - If not: `{"type": "error", "data": {"message": "Your offer for diamonds is not low enough to update the order book."}`
 - Cancel Order:
-  -  If successful: `{"type": "cancel_order", "data": {"order_canceled": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric canceled offer for diamonds."}`
-  -  If not: `{"type": "error", "data": {"message": "You cannot cancel this offer."}`
-- Accept Order: 
+  - If successful: `{"type": "cancel_order", "data": {"order_canceled": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric canceled offer for diamonds."}`
+  - If not: `{"type": "error", "data": {"message": "You cannot cancel this offer."}`
+- Accept Order:
   - If successful: `{"type": "accept_order", "data": {"buyer_id": "Pun", "seller_id": "Connor", "price": 5, "is_bid": true, "suit": "clubs"}}`
   - If not: `{"type": "error", "data": {"message": ""Order could not be fulfilled."}`
 - Game State (broadcasted every second during round):

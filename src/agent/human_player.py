@@ -56,7 +56,7 @@ class HumanPlayer:
         suits = ["h", "c", "s", "d"]
         cmd_str = cmd_str.strip().lower()
         cmd_lst = cmd_str.split()
-        if (cmd_lst.len() < 1):
+        if (len(cmd_lst) < 1):
             return False
         if (cmd_lst[0] == "help" or cmd_lst[0] == "h"):
             self.print_help()
@@ -64,6 +64,8 @@ class HumanPlayer:
         if (cmd_lst[0] == "bid" or cmd_lst[0] == "b"):
             suit = self.parse_suit(cmd_lst[1])
             price = int(cmd_lst[2])
+            if (suit not in suits):
+                return False
             await controller.place_bid(
                 websocket,
                 self.player_id,
@@ -75,6 +77,8 @@ class HumanPlayer:
         if (cmd_lst[0] == "offer" or cmd_lst[0] == "o"):
             suit = self.parse_suit(cmd_lst[1])
             price = int(cmd_lst[2])
+            if (suit not in suits):
+                return False
             await controller.place_offer(
                 websocket,
                 self.player_id,
