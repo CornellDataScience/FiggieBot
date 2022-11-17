@@ -39,8 +39,10 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 
 ### Output
 
-Place Order: 
-1. If successful: order is added to the order book; broadcast to everyone
+Place Order:
+
+- If successful: order is added to the order book; broadcast to everyone
+
 ```json
 {
   "type": "new_order", 
@@ -74,7 +76,9 @@ Place Order:
   }
 }
 ```
-2. If not: order book is not changed; broadcast to specific player
+
+- If not: order book is not changed; broadcast to specific player
+
 ```json
 {
   "type": "error", 
@@ -97,8 +101,11 @@ Place Order:
   }
 }
 ```
+
 Cancel Order:
-1. If successful: order is removed from order book; broadcast to every player
+
+- If successful: order is removed from order book; broadcast to every player
+
 ```json
 {
   "type": "cancel_order", 
@@ -127,7 +134,9 @@ Cancel Order:
   }
 }
 ```
-  2.  If not: order remains in the order book; broadcast to specific player
+
+- If not: order remains in the order book; broadcast to specific player
+
 ```json
 {
   "type": "error", 
@@ -155,8 +164,11 @@ Cancel Order:
   }
 }
 ```
-Accept Order: 
-1. If successful: order book is empty; broadcast to every player
+
+Accept Order:
+
+- If successful: order book is empty; broadcast to every player
+
 ```json
 {
   "type": "accept_order", 
@@ -186,7 +198,9 @@ Accept Order:
   }
 }
 ```
-2. If not: both orders remain in the order book; broadcast to specific player
+
+- If not: both orders remain in the order book; broadcast to specific player
+
 ```json
 {
   "type": "error", 
