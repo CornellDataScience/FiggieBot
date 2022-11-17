@@ -39,16 +39,188 @@ May need to run `Set-ExecutionPolicy Unrestricted -Scope Process` (allow running
 
 ### Output
 
-- Place Order:
-  - If successful: `{"type": "new_order", "data": {"new_order": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric offers 5 for diamonds."}`
-  - If not: `{"type": "error", "data": {"message": "Your offer for diamonds is not low enough to update the order book."}`
-- Cancel Order:
-  - If successful: `{"type": "cancel_order", "data": {"order_canceled": {"player_id": "Eric", "price": 5, "is_bid": false, "suit": "diamonds"}, "message": "Player Eric canceled offer for diamonds."}`
-  - If not: `{"type": "error", "data": {"message": "You cannot cancel this offer."}`
-- Accept Order:
-  - If successful: `{"type": "accept_order", "data": {"buyer_id": "Pun", "seller_id": "Connor", "price": 5, "is_bid": true, "suit": "clubs"}}`
-  - If not: `{"type": "error", "data": {"message": ""Order could not be fulfilled."}`
-- Game State (broadcasted every second during round):
+Place Order: 
+1. If successful: order is added to the order book; broadcast to everyone
+```json
+{
+  "type": "new_order", 
+  "data": {
+    "new_order": {
+      "player_id": "Eric", 
+      "price": 5, 
+      "is_bid": false, 
+      "suit": "diamonds"
+     }, 
+     "message": "Player Eric offers 5 for diamonds.",
+     "order_book":{
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": {
+          "order_id": 1,
+          "player_id": "Eric",
+          "suit": "diamonds",
+          "price": 5
+        },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
+  }
+}
+```
+2. If not: order book is not changed; broadcast to specific player
+```json
+{
+  "type": "error", 
+  "data": {
+    "message": "Your offer for diamonds is not low enough to update the order book.",
+    "order_book":{
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
+  }
+}
+```
+Cancel Order:
+1. If successful: order is removed from order book; broadcast to every player
+```json
+{
+  "type": "cancel_order", 
+  "data": {
+    "order_canceled": {
+      "player_id": "Eric", 
+      "price": 5, 
+      "is_bid": false, 
+      "suit": "diamonds"
+    }, 
+    "message": "Player Eric canceled offer for diamonds.",
+    "order_book":{
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
+  }
+}
+```
+  2.  If not: order remains in the order book; broadcast to specific player
+```json
+{
+  "type": "error", 
+  "data": {
+    "message": "You cannot cancel this offer."
+    "order_book": {
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": {
+          "order_id": 1,
+          "player_id": "Connor",
+          "suit": "diamonds",
+          "price": 5
+        },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
+  }
+}
+```
+Accept Order: 
+1. If successful: order book is empty; broadcast to every player
+```json
+{
+  "type": "accept_order", 
+  "data": {
+    "accepted_order": {
+      "buyer_id": "Pun", 
+      "seller_id": "Connor", 
+      "price": 5, 
+      "is_bid": true, 
+      "suit": "clubs"
+    }, 
+    "message": "Player Connor sold clubs to Player Pun for 5.", 
+    "order_book":{
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
+  }
+}
+```
+2. If not: both orders remain in the order book; broadcast to specific player
+```json
+{
+  "type": "error", 
+  "data": {
+    "message": "Order could not be fulfilled.",
+    "order_book":{
+      "bids": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": {
+          "order_id": 0,
+          "player_id": "Pun",
+          "suit": "clubs",
+          "price": 5
+        },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      },
+      "offers": {
+        "hearts": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "diamonds": { "order_id": -1, "player_id": "", "suit": "", "price": 0 },
+        "clubs": {
+          "order_id": 1,
+          "player_id": "Connor",
+          "suit": "clubs",
+          "price": 6
+        },
+        "spades": { "order_id": -1, "player_id": "", "suit": "", "price": 0 }
+      }
+    }
+  }
+}
+```
+
+Game State (broadcasted every second during round):
 
 ```json
 {
