@@ -3,6 +3,7 @@ import asyncio
 import websockets
 import controller
 import random
+import pretty_printer as pp
 import sys
 sys.path.insert(0, "../")
 from util import constants
@@ -41,8 +42,8 @@ class RandomPlayer:
                         suit=random.choice(constants.SUITS),
                         price=random.randint(self.offer_low, self.offer_high))
                 await asyncio.sleep(1)
-                # game_state = await controller.get_game_update(websocket) # TODO: Change this to asynchronous
-                # print(game_state)
+                game_state = await controller.get_game_update(websocket)
+                pp.print_state(game_state)
 
 
 random_player = RandomPlayer(
