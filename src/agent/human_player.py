@@ -3,7 +3,7 @@ import asyncio
 from typing import Tuple
 import websockets
 import controller
-import random
+import pretty_printer as pp
 from enum import Enum, auto
 import sys
 sys.path.insert(0, "../")
@@ -49,39 +49,6 @@ class HumanPlayer:
         print("cancel_bid (cb): cancel_bid <suit> OR cb <suit>")
         print("cancel_offer (co): cancel_offer <suit> OR co <suit>")
         print("suits: hearts (h), clubs (c), spades (s), diamonds (d)")
-
-    def pp_order_book(self, order_book: dict):
-        '''
-        Pretty-prints the order book.
-        '''
-        print("Current Order Book:")
-        for suit in order_book["bids"].keys():
-            order = order_book["bids"][suit]
-            if order["order_id"] == -1:
-                continue
-            print(order["player_id"], "bids",
-                  order["suit"], "at price", order["price"])
-
-        for suit in order_book["offers"].keys():
-            order = order_book["offers"][suit]
-            if order["order_id"] == -1:
-                continue
-            print(order["player_id"], "offers",
-                  order["suit"], "at price", order["price"])
-
-    def print_state(self, state: dict):
-        '''
-        Prints a message based on the game state received from the server.
-        '''
-        if (state["type"] == "error"):
-            print(state["data"]["message"])
-        elif (state["type"] in ["new_order", "cancel_order", "accept_order", "update_game"]):
-            order_book = state["data"]["order_book"]
-            state["data"].pop("order_book")
-            print(state)
-            self.pp_order_book(order_book)
-        else:
-            print(state)
 
     def parse_suit(self, suit_str: str) -> Tuple[bool, str]:
         '''
@@ -196,7 +163,7 @@ class HumanPlayer:
 
         print()
         game_state = await controller.get_game_update(websocket)
-        self.print_state(game_state)
+        pp.print_state(game_state)
 
     async def run(self):
         async with websockets.connect(uri) as websocket:
@@ -208,7 +175,7 @@ class HumanPlayer:
             while True:
                 # game_state = await controller.get_game_update(websocket)
                 # print("Current game state:")
-                # self.print_state(game_state)
+                # pp.print_state(game_state)
                 cmd_str = input("Make an action (type h or help for help): ")
                 cmd_ok, cmd = self.parse_cmd(cmd_str)
                 while (not cmd_ok):
