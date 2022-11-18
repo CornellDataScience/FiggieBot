@@ -24,7 +24,7 @@ def write_rounds(game_id, round_id,players):
     """
     balance = {} 
     for player in players:
-        balance[player] = player.balance
+        balance[str(player)] = players[player].balance
     db_rounds.insert_one({
         "game_id" : game_id,
         "round_id" : round_id,
