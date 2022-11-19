@@ -172,7 +172,7 @@ async def place_order(player_id, is_bid, suit, price):
     """
     global next_order_id
     global order_book
-    websocket = players[player_id]
+    websocket = players[player_id].websocket
 
     if is_bid:
         new_order = Bid(next_order_id, player_id, suit, price)
@@ -221,7 +221,7 @@ async def cancel_order(player_id, is_bid, suit):
     """
     order_type, empty_order, prev_order = determine_order(
         player_id, is_bid, suit)
-    websocket = players[player_id]
+    websocket = players[player_id].websocket
 
     individual_order = " bid " if is_bid else " offer "
     if prev_order.player_id == player_id:
@@ -260,7 +260,7 @@ async def accept_order(acceptor_id, is_bid, suit):
     - update the money and hand (i.e. count, kind) of cards for the two players involved
     """
     order = order_book["bids" if is_bid else "offers"][suit]
-    websocket = players[acceptor_id]
+    websocket = players[acceptor_id].websocket
 
     if order.player_id == acceptor_id:
         return
@@ -299,6 +299,7 @@ async def accept_order(acceptor_id, is_bid, suit):
                 "order_book": order_book_to_dict(order_book)
             }
         })
+
 
 def clear_book():
     """
