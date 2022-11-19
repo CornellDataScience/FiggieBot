@@ -14,6 +14,9 @@ async def websocket_endpoint(websocket: WebSocket):
             request = await websocket.receive_json()
             data = request['data']
 
+            if request['type'] == 'start_game':
+                await game.start_game()
+
             if request['type'] == 'start_round':
                 await game.start_round()
 
