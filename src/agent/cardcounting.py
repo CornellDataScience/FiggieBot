@@ -1,7 +1,8 @@
 import math 
 import sys 
 sys.path.insert(0, "../")
-from util.constants import HEARTS, DIAMONDS, SPADES, CLUBS, EMPTY_DECK
+from util import constants
+from util.constants import SPADES, CLUBS, HEARTS, DIAMONDS, EMPTY_DECK
 
 SUIT_NUMS = {SPADES: 0, CLUBS: 1, HEARTS: 2, DIAMONDS: 3}
 
