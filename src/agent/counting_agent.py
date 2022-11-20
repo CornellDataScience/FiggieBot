@@ -14,14 +14,19 @@ uri = "ws://127.0.0.1:8000/ws"
 
 
 class CardCounter():
-    def __init__(self):
+    def __init__(self, start_round):
         self.player_id = "Cardcounting bot"
         self.count = {}
+        self.start_round = start_round
 
     async def run(self):
         async with websockets.connect(uri) as websocket:
             await controller.add_player(websocket, self.player_id)
-            await controller.start_round(websocket)
+            if (self.start_round):
+                await controller.start_round(websocket)
+            while (not await controller.round_started(websocket)):
+                # Wait until round starts
+                pass
             while True:
                 request = await controller.get_game_update(websocket)
 
