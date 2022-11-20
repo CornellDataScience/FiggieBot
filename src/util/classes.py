@@ -4,11 +4,12 @@ from . import constants
 
 
 class Player:
-    def __init__(self, player_id, websocket, balance):
+    def __init__(self, player_id, websocket, balance, is_ready):
         self.player_id = player_id
         self.websocket = websocket
         self.balance = balance
         self.hand = constants.EMPTY_DECK.copy()
+        self.is_ready = is_ready
 
     def privateToDict(self):
         dict = self.__dict__.copy()
@@ -43,6 +44,3 @@ class Offer:
 
     def toDict(self):
         return self.__dict__
-
-
-print(datetime.datetime.now())

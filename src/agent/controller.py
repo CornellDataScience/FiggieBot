@@ -26,15 +26,6 @@ async def _place_order(ws, player_id, suit, price, is_bid):
     await ws.send(json.dumps(place_json))
 
 
-async def cancel_order(ws, player_id, suit):
-    """
-    Cancel an existing order placed by the player.
-    """
-    cancel_json = {"type": "cancel_order", "data": {
-        "player_id": player_id, "is_bid": "true", "suit": suit}}
-    await ws.send(json.dumps(cancel_json))
-
-
 async def place_bid(ws, player_id, suit, price):
     """
     Place a bid with the given information.
@@ -49,12 +40,35 @@ async def place_offer(ws, player_id, suit, price):
     await _place_order(ws, player_id, suit, price, is_bid=False)
 
 
+async def _cancel_order(ws, player_id, suit, is_bid):
+    """
+    Cancel an existing order placed by the player.
+    """
+    cancel_json = {"type": "cancel_order", "data": {
+        "player_id": player_id, "is_bid": is_bid, "suit": suit}}
+    await ws.send(json.dumps(cancel_json))
+
+
+async def cancel_bid(ws, player_id, suit):
+    """
+    Cancel an existing bid placed by the player.
+    """
+    await _cancel_order(ws, player_id, suit, is_bid=True)
+
+
+async def cancel_offer(ws, player_id, suit):
+    """
+    Cancel an existing offer placed by the player.
+    """
+    await _cancel_order(ws, player_id, suit, is_bid=False)
+
+
 async def _accept_order(ws, player_id, suit, is_bid):
     """
     Accept an existing order with the given information.
     """
     accept_json = {"type": "accept_order", "data": {
-        "buyer_id": player_id, "seller_id": "TODO", "is_bid": is_bid, "suit": suit}}
+        "accepter_id": player_id, "is_bid": is_bid, "suit": suit}}
     await ws.send(json.dumps(accept_json))
 
 
@@ -72,16 +86,9 @@ async def accept_offer(ws, player_id, suit):
     await _accept_order(ws, player_id, suit, is_bid=False)
 
 
-def _parse_msg(msg_json):
-    """
-    Parse the message received from the game engine.
-    """
-    return json.loads(msg_json)  # TODO: Implement
-
-
-async def get_game_update(ws):
+async def get_game_update(ws) -> dict:
     """
     Get updates from the game engine about the game state.
     """
     msg_json = await ws.recv()
-    return _parse_msg(msg_json)
+    return json.loads(msg_json)
