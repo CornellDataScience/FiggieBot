@@ -3,6 +3,8 @@ import json
 import game
 
 app = FastAPI(title="FiggieBot Game Engine")
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     print('Connecting client...')
@@ -22,20 +24,23 @@ async def websocket_endpoint(websocket: WebSocket):
                 await game.add_player(data['player_id'], websocket)
 
             if request['type'] == 'place_order':
-                game.place_order(data['player_id'], data['is_bid'], data['suit'], data['price'])
-                
+                game.place_order(
+                    data['player_id'], data['is_bid'], data['suit'], data['price'])
+
             if request['type'] == 'cancel_order':
-                game.cancel_order(data['player_id'], data['is_bid'], data['suit'])
+                game.cancel_order(data['player_id'],
+                                  data['is_bid'], data['suit'])
 
             if request['type'] == 'accept_order':
                 print("Accepting order...")
-                game.accept_order(data['accepter_id'], data['is_bid'], data['suit'])
-        
+                game.accept_order(data['accepter_id'],
+                                  data['is_bid'], data['suit'])
+
         except WebSocketDisconnect:
             print('Disconnecting client...')
             break
 
         except Exception as e:
             print('error:', e)
-    
+
     print('Disconnecting client...')
