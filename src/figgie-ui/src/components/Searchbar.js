@@ -8,13 +8,13 @@ export default function Searchbar({ client }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    navigate('/game')
     client.send(JSON.stringify({
       type: "add_player",
       data: {
         player_id: username
       }
     }))
-    navigate('/game')
   }
 
   return (

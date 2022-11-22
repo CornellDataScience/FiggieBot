@@ -68,13 +68,23 @@ async def start_game(player_id):
     players[player_id].is_ready = True
 
     if len(players) != 4:
+        print(str(len(players)) + " out of 4 are in the lobby!")
         return
 
+    count = 0
     for player in players:
-        if players[player].is_ready == False:
-            return
+        if players[player].is_ready == True:
+            count += 1
 
-    start_round()
+    if count != 4:
+        print("Only " + str(count) + " out of 4 are ready!")
+        for player in players:
+            if players[player].is_ready == True:
+                print(str(player) + " is ready!")
+        return
+
+    print("Starting round!")
+    await start_round()
 
 
 async def start_round():
@@ -161,7 +171,7 @@ async def add_player(player_id, websocket):
             {"type": "error", "data": {"message": "Player already exists."}})
         return
     players[player_id] = Player(player_id, websocket, 350, False)
-    await broadcast({"type": "add_player", "data": {"player": player_id}})
+    await websocket.send_json({"type": "add_player", "data": {"player_id": player_id}})
     print("Adding player with id: " + player_id)
 
 

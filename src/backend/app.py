@@ -15,7 +15,7 @@ async def websocket_endpoint(websocket: WebSocket):
             data = request['data']
 
             if request['type'] == 'start_game':
-                await game.start_game()
+                await game.start_game(data['player_id'])
 
             if request['type'] == 'start_round':
                 await game.start_round()

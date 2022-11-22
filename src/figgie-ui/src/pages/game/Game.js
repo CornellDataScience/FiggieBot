@@ -4,14 +4,21 @@ import { useState, useEffect } from 'react'
 
 function Game({ client }) {
     useEffect(() => {
-        client.onopen = () => console.log('ws opened');
+        client.onopen = () => {
+            console.log('ws opened');
+            client.send(JSON.stringify({ type: "request_state", data: {} }))
+        }
         client.onclose = () => console.log('ws closed');
 
         client.onmessage = e => {
-            const message = JSON.parse(e);
+            const message = JSON.parse(e.data);
             if (message.type === "update_game") {
                 setGameState(message.data);
                 setNumPlayers(() => calcPlayers());
+            }
+            if (message.type === "add_player") {
+                const copy = { ...gameState, player: { ...gameState.player, player_id: message.data.player_id } }
+                setGameState(copy);
             }
         };
     }, [client]);
@@ -75,7 +82,7 @@ function Game({ client }) {
     const startGame = () => {
         client.send(JSON.stringify({
             type: "start_game",
-            data: {}
+            data: { "player_id": gameState.player.player_id }
         }))
     }
 
@@ -124,7 +131,19 @@ function Game({ client }) {
     return (
         <div className="game">
             <p1>Players Connected: {numPlayers}</p1>
-            <button onClick={startGame}>Start Game</button>
+            <div>
+                <button onClick={startGame}>Start Game</button>
+            </div>
+            <div>
+                <p1>Timer: {gameState.time}</p1>
+            </div>
+            <div>
+                <p1>Hearts: {gameState.player.hand.hearts} | </p1>
+                <p1>Diamonds: {gameState.player.hand.diamonds} | </p1>
+                <p1>Clubs: {gameState.player.hand.clubs} | </p1>
+                <p1>Spades: {gameState.player.hand.spades} | </p1>
+                <p1>Balance: {gameState.player.balance}</p1>
+            </div>
             <h1>Spades</h1>
             <form>
                 <p1>Current: {gameState.order_book.bids.spades.price}</p1>
