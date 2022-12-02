@@ -42,5 +42,5 @@ class CardCounter():
                             "Expected sell" + str(cardcounting.expected_value_sell(s, self.hand[s], dist)))
 
 
-cardcounter = CardCounter(start_round=True)
+cardcounter = CardCounter(start_round=False)
 asyncio.get_event_loop().run_until_complete(cardcounter.run())

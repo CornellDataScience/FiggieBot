@@ -264,6 +264,7 @@ async def accept_order(acceptor_id, is_bid, suit):
     - update the order book by removing all current bids/offers
     - update the money and hand (i.e. count, kind) of cards for the two players involved
     """
+    # print("In accept_order 1")
     order = order_book["bids" if is_bid else "offers"][suit]
     websocket = players[acceptor_id].websocket
 
@@ -278,15 +279,17 @@ async def accept_order(acceptor_id, is_bid, suit):
         seller = players[order.player_id]
 
     if (seller.hand[suit] > 0) and (buyer.balance >= order.price):
+        # print("In accept_order 2")
         buyer.hand[suit] += 1
         seller.hand[suit] -= 1
         buyer.balance -= order.price
         seller.balance += order.price
-        write_orders(game_id, round_number, is_bid, suit,
-                     order.price, buyer, seller, "accepts")
+        # write_orders(game_id, round_number, is_bid, suit,
+        #              order.price, buyer, seller, "accepts")
         accepted_order_dict = accepted_order_to_dict(
             buyer.player_id, seller.player_id, order, is_bid)
         clear_book()
+        # print("In accept_order 3")
         await broadcast({
             "type": "accept_order",
             "data": {
@@ -294,8 +297,8 @@ async def accept_order(acceptor_id, is_bid, suit):
                 "order_book": order_book_to_dict(order_book)
             }
         })
-        print("Player " + seller + " sold " + suit +
-              " to Player" + buyer + " for " + str(order.price))
+        print("Player " + seller.player_id + " sold " + suit +
+              " to Player" + buyer.player_id + " for " + str(order.price))
     else:
         await websocket.send_json({
             "type": "error",
