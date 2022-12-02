@@ -202,7 +202,7 @@ async def place_order(player_id, is_bid, suit, price):
     order_type, _, prev_order = determine_order(player_id, is_bid, suit)
     action = "bid" if is_bid else "offer"
     descriptor = "high" if is_bid else "low"
-    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == -1)):
+    if (order_type == "bids" and prev_order.price < price) or (order_type == "offers" and (prev_order.price > price or prev_order.price == 0)):
         order_book[order_type][suit] = new_order
         next_order_id += 1
         await broadcast({
@@ -283,9 +283,13 @@ async def accept_order(acceptor_id, is_bid, suit):
     if is_bid:
         buyer = players[order.player_id]
         seller = players[acceptor_id]
+        buyer_id = order.player_id
+        seller_id = acceptor_id
     else:
         buyer = players[acceptor_id]
         seller = players[order.player_id]
+        seller_id = order.player_id
+        buyer_id = acceptor_id
 
     if (seller.hand[suit] > 0) and (buyer.balance >= order.price):
         buyer.hand[suit] += 1
@@ -304,8 +308,8 @@ async def accept_order(acceptor_id, is_bid, suit):
                 "order_book": order_book_to_dict(order_book)
             }
         })
-        print("Player " + seller + " sold " + suit +
-              " to Player" + buyer + " for " + str(order.price))
+        print("Player " + seller_id + " sold " + suit +
+              " to Player" + buyer_id + " for " + str(order.price))
     else:
         await websocket.send_json({
             "type": "error",

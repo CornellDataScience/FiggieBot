@@ -128,6 +128,46 @@ function Game({ client }) {
         client.send(JSON.stringify({ type: "place_order", data: { player_id: gameState.player.player_id, is_bid: false, suit: "clubs", price: Number(clubOffer) } }))
     }
 
+    const acceptSB = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: true, suit: "spades" } }))
+    }
+
+    const acceptSO = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: false, suit: "spades" } }))
+    }
+
+    const acceptHB = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: true, suit: "hearts" } }))
+    }
+
+    const acceptHO = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: false, suit: "hearts" } }))
+    }
+
+    const acceptDB = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: true, suit: "diamonds" } }))
+    }
+
+    const acceptDO = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: false, suit: "diamonds" } }))
+    }
+
+    const acceptCB = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: true, suit: "clubs" } }))
+    }
+
+    const acceptCO = (e) => {
+        e.preventDefault()
+        client.send(JSON.stringify({ type: "accept_order", data: { "accepter_id": gameState.player.player_id, is_bid: false, suit: "clubs" } }))
+    }
+
     return (
         <div className="game">
             <p1>Players Connected: {numPlayers}</p1>
@@ -148,41 +188,65 @@ function Game({ client }) {
             <form>
                 <p1>Current: {gameState.order_book.bids.spades.price}</p1>
                 <input value={spadeBid} onChange={(e) => setSpadeBid(e.target.value)} type="number" />
-                <button onClick={handleClickSB} >Bid</button>
+                <div>
+                    <button onClick={handleClickSB} >Bid</button>
+                    <button onClick={acceptSB}>Accept Order</button>
+                </div>
                 <br />
                 <p1>Current: {gameState.order_book.offers.spades.price}</p1>
                 <input value={spadeOffer} onChange={(e) => setSpadeOffer(e.target.value)} type="number" />
-                <button onClick={handleClickSO} >Offer</button>
+                <div>
+                    <button onClick={handleClickSO} >Offer</button>
+                    <button onClick={acceptSO}>Accept Order</button>
+                </div>
             </form>
             <h1>Clubs</h1>
             <form>
                 <p1>Current: {gameState.order_book.bids.clubs.price}</p1>
                 <input value={clubBid} onChange={(e) => setClubBid(e.target.value)} type="number" />
-                <button onClick={handleClickCB} >Bid</button>
+                <div>
+                    <button onClick={handleClickCB} >Bid</button>
+                    <button onClick={acceptCB}>Accept Order</button>
+                </div>
                 <br />
                 <p1>Current: {gameState.order_book.offers.clubs.price}</p1>
                 <input value={clubOffer} onChange={(e) => setClubOffer(e.target.value)} type="number" />
-                <button onClick={handleClickCO} >Offer</button>
+                <div>
+                    <button onClick={handleClickCO} >Offer</button>
+                    <button onClick={acceptCO}>Accept Order</button>
+                </div>
             </form>
             <h1>Diamonds</h1>
             <form>
                 <p1>Current: {gameState.order_book.bids.diamonds.price}</p1>
                 <input value={diamondBid} onChange={(e) => setDiamondBid(e.target.value)} type="number" />
-                <button onClick={handleClickDB} >Bid</button>
+                <div>
+                    <button onClick={handleClickDB} >Bid</button>
+                    <button onClick={acceptDB}>Accept Order</button>
+                </div>
                 <br />
                 <p1>Current: {gameState.order_book.offers.diamonds.price}</p1>
                 <input value={diamondOffer} onChange={(e) => setDiamondOffer(e.target.value)} type="number" />
-                <button onClick={handleClickDO} >Offer</button>
+                <div>
+                    <button onClick={handleClickDO} >Offer</button>
+                    <button onClick={acceptDO}>Accept Order</button>
+                </div>
             </form>
             <h1>Hearts</h1>
             <form>
                 <p1>Current: {gameState.order_book.bids.hearts.price}</p1>
                 <input value={heartBid} onChange={(e) => setHeartBid(e.target.value)} type="number" />
-                <button onClick={handleClickHB} >Bid</button>
+                <div>
+                    <button onClick={handleClickHB} >Bid</button>
+                    <button onClick={acceptHB}>Accept Order</button>
+                </div>
                 <br />
                 <p1>Current: {gameState.order_book.offers.hearts.price}</p1>
                 <input value={heartOffer} onChange={(e) => setHeartOffer(e.target.value)} type="number" />
-                <button onClick={handleClickHO} >Offer</button>
+                <div>
+                    <button onClick={handleClickHO} >Offer</button>
+                    <button onClick={acceptHO}>Accept Order</button>
+                </div>
             </form>
         </div>
     )
