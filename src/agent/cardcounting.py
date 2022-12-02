@@ -1,8 +1,10 @@
+# fmt: off
 import math 
 import sys 
 sys.path.insert(0, "../")
 from util import constants
 from util.constants import SPADES, CLUBS, HEARTS, DIAMONDS, EMPTY_DECK
+# fmt: on
 
 SUIT_NUMS = {SPADES: 0, CLUBS: 1, HEARTS: 2, DIAMONDS: 3}
 
@@ -23,14 +25,15 @@ MAJORITIES = [5, 6, 6, 5, 6, 6, 6, 6, 5, 6, 6, 5]
 
 PAYOUTS = [120, 100, 100, 120, 100, 100, 100, 100, 120, 100, 100, 120]
 
-POSSIBLE_DECKS = [DECK0, DECK1, DECK2, DECK3, DECK4, DECK5, DECK6, DECK7, DECK8, DECK9, DECK10, DECK11]
+POSSIBLE_DECKS = [DECK0, DECK1, DECK2, DECK3, DECK4,
+                  DECK5, DECK6, DECK7, DECK8, DECK9, DECK10, DECK11]
 
 
-def count_cards(count, trade): 
+def count_cards(count, trade):
     """
     Update list of observed cards when new trade occurs. 
     """
-    data = trade['data']
+    data = trade['data']['accepted_order']
     buyer = data['buyer_id']
     seller = data['seller_id']
     suit = data['suit']
@@ -38,12 +41,12 @@ def count_cards(count, trade):
     if count[seller][suit] < 1:
         count[seller][suit] = 0
     else:
-        count[seller][suit] -=1
+        count[seller][suit] -= 1
 
-    count[buyer][suit] +=1 
+    count[buyer][suit] += 1
 
     return count
-    
+
 
 def deck_distribution(player_hands):
     """
@@ -51,21 +54,21 @@ def deck_distribution(player_hands):
     """
     total = EMPTY_DECK.copy()
     for hand in player_hands:
-        for suit in hand: 
+        for suit in hand:
             total[suit] += hand[suit]
 
     m = [0] * 12
     for i in range(12):
-        combs = 1 
-        for suit in total: 
+        combs = 1
+        for suit in total:
             combs *= math.comb(POSSIBLE_DECKS[i][suit], total[suit])
         m[i] = combs
 
-    total_combs = sum(m) 
+    total_combs = sum(m)
     for i in range(12):
         m[i] /= total_combs
 
-    return m 
+    return m
 
 
 def expected_value_buy(suit, suit_count, m):
@@ -73,10 +76,10 @@ def expected_value_buy(suit, suit_count, m):
     Return expected value for card being bought. 
     suit_count is # of cards of a suit in YOUR hand.
     """
-    expected_value = 0 
+    expected_value = 0
     for i in range(12):
         expected_value += m[i] * value_card(i, suit, suit_count)
-    return expected_value  
+    return expected_value
 
 
 def expected_value_sell(suit, suit_count, m):
@@ -101,17 +104,10 @@ def value_payout(deck_index, suit_count):
     """
     Return value of a given suit given a deck and the number of cards of that suit held. 
     """
-    r = 3.5 # subject to change   
+    r = 3.5  # subject to change
     if suit_count < MAJORITIES[deck_index]:
         payout = PAYOUTS[deck_index]
-        value = payout * (1 - r) * (r ** suit_count) / (1 - r ** MAJORITIES[deck_index])
-        return value 
-    return 0 
-    
-
-    
-
-
-        
-
-
+        value = payout * (1 - r) * (r ** suit_count) / \
+            (1 - r ** MAJORITIES[deck_index])
+        return value
+    return 0

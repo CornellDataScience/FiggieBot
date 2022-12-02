@@ -35,6 +35,7 @@ async def websocket_endpoint(websocket: WebSocket):
             if request['type'] == 'accept_order':
                 print("Accepting order...")
                 await game.accept_order(data['accepter_id'], data['is_bid'], data['suit'])
+                print("Order successfully accepted.")
 
         except WebSocketDisconnect:
             print('Disconnecting client...')

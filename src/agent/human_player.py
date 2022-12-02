@@ -20,6 +20,7 @@ uri = "ws://127.0.0.1:8000/ws"
 class CmdType(Enum):
     NONE = auto()
     HELP = auto()
+    FETCH = auto()
     BID = auto()
     OFFER = auto()
     ACCEPT_BID = auto()
@@ -36,12 +37,14 @@ class Command:
 
 
 class HumanPlayer:
-    def __init__(self):
+    def __init__(self, start_round):
         self.player_id = "Human Player"
+        self.start_round = start_round
 
     def print_help(self):
         print("Commands:")
         print("help (h)")
+        print("fetch (f): fetch the game state from the server")
         print("bid (b): bid <suit> <price> OR b <suit> <price>")
         print("offer (o): offer <suit> <price> OR o <suit> <price>")
         print("accept_bid (ab): accept_bid <suit> OR ab <suit>")
@@ -79,6 +82,9 @@ class HumanPlayer:
 
         if (cmd_lst[0] == "help" or cmd_lst[0] == "h"):
             return (True, Command(CmdType.HELP))
+
+        if (cmd_lst[0] == "fetch" or cmd_lst[0] == "f"):
+            return (True, Command(CmdType.FETCH))
 
         if (cmd_lst[0] == "bid" or cmd_lst[0] == "b"):
             if (len(cmd_lst) != 3):
@@ -170,8 +176,12 @@ class HumanPlayer:
             name = input("Enter your username: ")
             self.player_id += (" " + name)
             await controller.add_player(websocket, self.player_id)
-            await controller.start_round(websocket)
+            if (self.start_round):
+                await controller.start_round(websocket)
             self.print_help()
+            while (not await controller.round_started(websocket)):
+                # Wait until round starts
+                pass
             while True:
                 # game_state = await controller.get_game_update(websocket)
                 # print("Current game state:")
@@ -186,5 +196,5 @@ class HumanPlayer:
                 await self.run_cmd(websocket, cmd)
 
 
-human_player = HumanPlayer()
+human_player = HumanPlayer(start_round=False)
 asyncio.get_event_loop().run_until_complete(human_player.run())
