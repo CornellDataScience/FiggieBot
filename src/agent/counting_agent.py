@@ -31,9 +31,14 @@ class CardCounter():
                 request = await controller.get_game_update(websocket)
 
                 pp.print_state(request)
+                print("DEBUG 1")
+
                 if request['type'] == 'accept_order':
                     print("got accept order")
+                    print(request)
+
                     self.count = cardcounting.count_cards(self.count, request)
+                    print("self.count", self.count)
                     dist = cardcounting.deck_distribution(self.count)
                     for s in constants.SUITS:
                         print(

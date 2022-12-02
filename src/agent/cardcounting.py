@@ -29,7 +29,7 @@ POSSIBLE_DECKS = [DECK0, DECK1, DECK2, DECK3, DECK4,
                   DECK5, DECK6, DECK7, DECK8, DECK9, DECK10, DECK11]
 
 
-def count_cards(count, trade):
+def count_cards(count, trade) -> dict[str, dict[str, int]]:
     """
     Update list of observed cards when new trade occurs. 
     """
@@ -45,17 +45,19 @@ def count_cards(count, trade):
 
     count[buyer][suit] += 1
 
-    return count
+    return count  # a dict from string to dict, where the second dict is from string to int
 
 
-def deck_distribution(player_hands):
+def deck_distribution(player_hands: dict[str, dict[str, int]]):
     """
-    Return probability of being in each deck given the list of counted cards. 
+    Return probability of being in each deck given the list of counted cards.
+    player_hands is a dict from string to dict, where the second dict is from string to int
+    Example: {'Human Player a': {'hearts': 0, 'diamonds': 1, 'clubs': 0, 'spades': 0}, 'Random Player': {'hearts': 0, 'diamonds': 0, 'clubs': 0, 'spades': 0}}
     """
     total = EMPTY_DECK.copy()
-    for hand in player_hands:
-        for suit in hand:
-            total[suit] += hand[suit]
+    for player in player_hands:
+        for suit in player_hands[player]:
+            total[suit] += player_hands[player][suit]
 
     m = [0] * 12
     for i in range(12):
