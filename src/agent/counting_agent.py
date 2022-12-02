@@ -39,7 +39,7 @@ class CardCounter():
                         print(
                             "Expected buy: " + str(cardcounting.expected_value_buy(s, self.hand[s], dist)))
                         print(
-                            "Expected sell" + str(cardcounting.expected_value_sell(s, self.hand[s], dist)))
+                            "Expected sell: " + str(cardcounting.expected_value_sell(s, self.hand[s], dist)))
 
 
 cardcounter = CardCounter(start_round=False)
