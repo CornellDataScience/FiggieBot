@@ -14,14 +14,14 @@ def print_order_book(order_book: dict):
         order = order_book["bids"][suit]
         if order["order_id"] == -1:
             continue
-        print(order["player_id"], "bids",
+        print("-", order["player_id"], "bids",
               order["suit"], "at price", order["price"])
 
     for suit in order_book["offers"].keys():
         order = order_book["offers"][suit]
         if order["order_id"] == -1:
             continue
-        print(order["player_id"], "offers",
+        print("-", order["player_id"], "offers",
               order["suit"], "at price", order["price"])
 
 

@@ -57,5 +57,5 @@ class RandomPlayer:
 
 
 random_player = RandomPlayer(
-    bid_low=1, bid_high=10, offer_low=5, offer_high=15, order_period=3, start_round=True)
+    bid_low=1, bid_high=10, offer_low=5, offer_high=15, order_period=5, start_round=True)
 asyncio.get_event_loop().run_until_complete(random_player.run())
