@@ -31,12 +31,18 @@ POSSIBLE_DECKS = [DECK0, DECK1, DECK2, DECK3, DECK4,
 
 def count_cards(count, trade) -> dict[str, dict[str, int]]:
     """
-    Update list of observed cards when new trade occurs. 
+    Update list of observed cards when new trade occurs.
     """
     data = trade['data']['accepted_order']
     buyer = data['buyer_id']
     seller = data['seller_id']
     suit = data['suit']
+
+    if buyer not in count:
+        count[buyer] = EMPTY_DECK.copy()
+
+    if seller not in count:
+        count[seller] = EMPTY_DECK.copy()
 
     if count[seller][suit] < 1:
         count[seller][suit] = 0
@@ -48,7 +54,7 @@ def count_cards(count, trade) -> dict[str, dict[str, int]]:
     return count  # a dict from string to dict, where the second dict is from string to int
 
 
-def deck_distribution(player_hands: dict[str, dict[str, int]]):
+def deck_distribution(player_hands: dict[str, dict[str, int]]) -> list[float]:
     """
     Return probability of being in each deck given the list of counted cards.
     player_hands is a dict from string to dict, where the second dict is from string to int

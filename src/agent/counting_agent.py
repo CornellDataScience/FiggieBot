@@ -29,18 +29,16 @@ class CardCounter():
                 pass
             while True:
                 request = await controller.get_game_update(websocket)
-
                 pp.print_state(request)
-                print("DEBUG 1")
 
                 if request['type'] == 'accept_order':
                     print("got accept order")
-                    print(request)
-
                     self.count = cardcounting.count_cards(self.count, request)
-                    print("self.count", self.count)
+                    # print("self.count:", self.count)
                     dist = cardcounting.deck_distribution(self.count)
+                    print("distribution:", dist)
                     for s in constants.SUITS:
+                        # TODO: self.hand doesn't exist
                         print(
                             "Expected buy: " + str(cardcounting.expected_value_buy(s, self.hand[s], dist)))
                         print(
