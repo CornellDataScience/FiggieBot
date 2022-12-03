@@ -16,6 +16,7 @@ uri = "ws://127.0.0.1:8000/ws"
 class CardCounter():
     def __init__(self, start_round):
         self.player_id = "Cardcounting bot"
+        self.hand = {}
         self.count = {}
         self.start_round = start_round
 
@@ -30,6 +31,9 @@ class CardCounter():
             while True:
                 request = await controller.get_game_update(websocket)
                 pp.print_state(request)
+
+                if request['type'] == 'update_game':
+                    self.hand = request['data']['player']['hand']
 
                 if request['type'] == 'accept_order':
                     print("got accept order")
